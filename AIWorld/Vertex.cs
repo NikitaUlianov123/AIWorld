@@ -10,12 +10,14 @@ namespace AIWorld
     {
         public T Value;
 
-        public List<(Vertex destination, int weight)> Neighbors;
+        public List<(Vertex<T> destination, int weight)> Neighbors;
+
+        public Vertex<T> Founder;
 
         public Vertex(T value)
         {
             Value = value;
-            Neighbors = new List<(AIWorld.Vertex destination, int weight)>();
+            Neighbors = new List<(AIWorld.Vertex<T> destination, int weight)>();
         }
     }
 }
