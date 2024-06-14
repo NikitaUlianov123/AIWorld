@@ -12,36 +12,35 @@ namespace AIWorld
     {
         Vertex<T> Next { get;}
 
-        void Add(Vertex<T> vertex);
+        void Add(Vertex<T> vertex, int priority);
 
         void RemoveNext();
 
         bool Contains(Vertex<T> vertex);
-        bool Contains(T value) => frontier.Where(x => x.Value.Equals(value)).Count() > 0;
+        bool Contains(T value);
     }
 
-    public class BFS<T> : IFrontier<T>
+    public class Frontier<T> : IFrontier<T>
     {
-        public ICollection<Vertex<T>> frontier { get => Collections.sort(myList, pq.comparator()); }
-        public Vertex<T> Next { get => priorityQueue.Peek(); }
+        public PriorityQueue<Vertex<T>, int> frontier;
+        public Vertex<T> Next { get => frontier.Peek(); }
 
-        PriorityQueue<Vertex<T>, int> priorityQueue;
-
-        public BFS()
-        { 
-            
+        public Frontier()
+        {
+            frontier = new PriorityQueue<Vertex<T>, int>();
         }
 
-        public void Add(Vertex<T> vertex)
+        public void Add(Vertex<T> vertex, int priority)
         {
-            priorityQueue.Enqueue(vertex);
+            frontier.Enqueue(vertex, priority);
         }
 
         public void RemoveNext()
         {
-            priorityQueue.Dequeue();
+            frontier.Dequeue();
         }
 
-        bool Contains(Vertex<T> vertex) => frontier.Contains(vertex);
+        public bool Contains(Vertex<T> vertex) => frontier.UnorderedItems.Where(x => x.Element.Equals(vertex)).Count() > 0;
+        public bool Contains(T value) => frontier.UnorderedItems.Where(x => x.Element.Value.Equals(value)).Count() > 0;
     }
 }
