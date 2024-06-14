@@ -2,6 +2,10 @@
 {
     internal class Program
     {
+        //Todo:
+        //get shit to kinda work
+        //do a* and heuristic
+        //agents and search without graph
         static void Main(string[] args)
         {
             Graph<int> grafy = new Graph<int>();
@@ -26,7 +30,7 @@
             grafy.AddEdge(21, 14, 23);
             grafy.AddEdge(21, 31, 14);
 
-            var yeet = grafy.Search(1, 31, );
+            var yeet = grafy.Search(1, 31, new Frontier<int>(), Searchs.UCS);
         }
     }
 }
