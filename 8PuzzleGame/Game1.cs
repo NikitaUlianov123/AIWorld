@@ -19,6 +19,8 @@ namespace _8PuzzleGame
 
         Graph<GameState> graf;
 
+        int[,] startState;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -29,9 +31,14 @@ namespace _8PuzzleGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            
+
+            startState = new int[,]{
+                { 1, 2, 3 },
+                { 7, 4, 5 },
+                { 8, 0, 6 } };
+
             graf = new Graph<GameState>();
-            var fml = new GameState();
+            var fml = new GameState(invert(startState));
             graf.AddVertex(new Vertex<GameState>(fml, GetNeighborVertecies));
 
             base.Initialize();
@@ -55,7 +62,9 @@ namespace _8PuzzleGame
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            var yeet = graf.Search(new GameState(), new GameState(new int[,] { { 1, 4, 0 }, { 2, 5, 7 }, { 3, 6, 8 } }), new Frontier<GameState>(), Searchs.BFS);
+            
+
+            var yeet = graf.Search(new GameState(invert(startState)), new GameState(), new Frontier<GameState>(), GameState.Search);
 
             base.Update(gameTime);
         }
@@ -67,6 +76,19 @@ namespace _8PuzzleGame
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);
+        }
+
+        int[,] invert(int[,] input)
+        {
+            int[,] output = new int[input.GetLength(0), input.GetLength(1)];
+            for (int i = 0; i < output.GetLength(0); i++)
+            {
+                for (int j = 0; j < output.GetLength(1); j++)
+                {
+                    output[i, j] = input[j, i];
+                }
+            }
+            return output;
         }
     }
 }

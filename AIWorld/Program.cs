@@ -3,8 +3,9 @@
     internal class Program
     {
         //Todo:
-        //get shit to kinda work
-        //do a* and heuristic
+        //get shit to kinda work (DONE!!!!1)
+        //do a* and heuristic (mostly done, finish later)
+
         //agents and search without graph
         static void Main(string[] args)
         {
