@@ -38,5 +38,14 @@ namespace AIWorld
 
             return getNeighbors(this);
         }
+
+        public override bool Equals(object? obj)
+        {
+            if(obj.GetType() != typeof(Vertex<T>)) return false;
+
+            var other = obj as Vertex<T>;//also intellisense
+
+            return other.Value.Equals(Value);// && other.Neighbors.SequenceEqual(Neighbors);
+        }
     }
 }

@@ -51,7 +51,6 @@ namespace AIWorld
                 var priorities = search(frontier.Next.GetNeighbors());
                 foreach (var neighbor in priorities)
                 {
-                    throw new Exception("make list.contains use my comparison");
                     if (!frontier.Contains(neighbor.vertex) && !visited.Contains(neighbor.vertex))
                     {
                         frontier.Add(neighbor.vertex, neighbor.priority);
@@ -74,7 +73,7 @@ namespace AIWorld
             }
 
             List<Vertex<T>> result = new List<Vertex<T>>();
-            var current = vertices.First(y => y.Value.Equals(end));//fix later
+            var current = frontier.Next;
             while (founders.ContainsKey(current))
             {
                 result.Insert(0, current);
