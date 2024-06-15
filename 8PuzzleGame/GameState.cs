@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AIWorld;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,17 +10,24 @@ namespace _8PuzzleGame
 {
     public class GameState
     {
+        static int defaultValue = 123456780;
+
         enum Directions { Up, Down, Left, Right }
 
         public int value
         {
             get
             {
-                throw new NotImplementedException("Sometimes throws out of range exception");
-                int result = 0;
-                for (int i = 0; i < 10; i++)
+                int result = 100 - (Grid[0, 0] == 1 ? 25 : 0) - (Grid[1, 0] == 2 ? 25 : 0) - (Grid[2, 0] == 3 ? 25 : 0);
+                for (int i = 0; i < 3; i++)
                 {
-                    result += Grid[i % 3, i / 3] * (int)Math.Pow(10, 9 - i);
+                    for (int j = 0; j < 3; j++)
+                    {
+                        if (Grid[i, j] > 3 && Grid[i, j] != 0)
+                        {
+                            result -= (Math.Abs(j - (Grid[i, j] / 3)) + Math.Abs(i - (Grid[i, j] % 3)));
+                        }
+                    }
                 }
 
                 return result;
@@ -124,6 +133,18 @@ namespace _8PuzzleGame
                 }
             }
             return thing;
+        }
+
+        public static List<(Vertex<GameState> vertex, int priority)> Search(List<(Vertex<GameState> destination, int weight)> neighbors)
+        {
+            List<(Vertex<GameState> vertex, int priority)> result = new List<(Vertex<GameState> vertex, int priority)>();
+
+            foreach (var neighbor in neighbors)
+            {
+                result.Add((neighbor.destination, Math.Abs(defaultValue - neighbor.destination.Value.value)));
+            }
+
+            return result;
         }
     }
 }

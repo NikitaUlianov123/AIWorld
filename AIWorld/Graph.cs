@@ -35,7 +35,6 @@ namespace AIWorld
             AddEdge(end, start, weight);
         }
 
-
         public List<Vertex<T>> Search(T start, T end, IFrontier<T> frontier, Func<List<(Vertex<T> destination, int weight)>, List<(Vertex<T> vertex, int priority)>> search)
         {
             List<Vertex<T>> visited = new List<Vertex<T>>();
