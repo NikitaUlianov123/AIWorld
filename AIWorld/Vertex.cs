@@ -13,7 +13,7 @@ namespace AIWorld
 
         public List<(Vertex<T> destination, int weight)> Neighbors;
 
-        Func<List<(Vertex<T> destination, int weight)>> getNeighbors;
+        Func<Vertex<T>, List<(Vertex<T> destination, int weight)>> getNeighbors;
         public Vertex(T value)
         {
             Value = value;
@@ -26,7 +26,7 @@ namespace AIWorld
             Neighbors = new List<(AIWorld.Vertex<T> destination, int weight)>();
         }
 
-        public Vertex(T value, Func<List<(Vertex<T> destination, int weight)>> getNeighbors)
+        public Vertex(T value, Func<Vertex<T>, List<(Vertex<T> destination, int weight)>> getNeighbors)
         {
             this.Value = value;
             this.getNeighbors = getNeighbors;
@@ -36,7 +36,7 @@ namespace AIWorld
         { 
             if(Neighbors != null) return Neighbors;
 
-            return getNeighbors();
+            return getNeighbors(this);
         }
     }
 }

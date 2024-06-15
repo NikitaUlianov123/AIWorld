@@ -14,6 +14,7 @@ namespace _8PuzzleGame
         {
             get
             {
+                throw new NotImplementedException("Sometimes throws out of range exception");
                 int result = 0;
                 for (int i = 0; i < 10; i++)
                 {
@@ -23,7 +24,7 @@ namespace _8PuzzleGame
                 return result;
             }
         }
-        int[,] Grid;
+        public int[,] Grid { get; private set; }
 
         public GameState()
         {
@@ -36,22 +37,28 @@ namespace _8PuzzleGame
                     Grid[x, y] = x + y * 3 + 1;
                 }
             }
+            Grid[2, 2] = 0;
         }
 
-        private GameState(int[,] Grid, Directions move)
+        public GameState(int[,] grid)
         {
-            Grid.CopyTo(this.Grid, 0);
+            Grid = Copy(grid);
+        }
+
+        private GameState(int[,] grid, Directions move)
+        {
+            Grid = Copy(grid);
             int Zero = FindZero();
             switch (move)
             {
                 case Directions.Up:
-                    Grid[Zero % 3, Zero / 3] = Grid[Zero % 3, Zero / 3 + 1];
-                    Grid[Zero % 3, Zero / 3 + 1] = 0;
+                    Grid[Zero % 3, Zero / 3] = Grid[Zero % 3, Zero / 3 - 1];
+                    Grid[Zero % 3, Zero / 3 - 1] = 0;
                     break;
 
                 case Directions.Down:
-                    Grid[Zero % 3, Zero / 3] = Grid[Zero % 3, Zero / 3 - 1];
-                    Grid[Zero % 3, Zero / 3 - 1] = 0;
+                    Grid[Zero % 3, Zero / 3] = Grid[Zero % 3, Zero / 3 + 1];
+                    Grid[Zero % 3, Zero / 3 + 1] = 0;
                     break;
 
                 case Directions.Left:
@@ -72,11 +79,28 @@ namespace _8PuzzleGame
             int Zero = FindZero();
 
             if (Zero / 3 > 0) result.Add(new GameState(Grid, Directions.Up));
-            if (Zero / 3 > 0) result.Add(new GameState(Grid, Directions.Down));
+            if (Zero / 3 < 2) result.Add(new GameState(Grid, Directions.Down));
             if (Zero % 3 > 0) result.Add(new GameState(Grid, Directions.Left));
             if (Zero % 3 < 2) result.Add(new GameState(Grid, Directions.Right));
 
             return result;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj.GetType() != typeof(GameState)) return false;
+
+            GameState other = obj as GameState;//idk, intelisense suggested it
+
+            for (int i = 0; i < other.Grid.GetLength(0); i++)
+            {
+                for (int j = 0; j < other.Grid.GetLength(1); j++)
+                {
+                    if (other.Grid[i, j] != Grid[i, j]) return false;
+                }
+            }
+
+            return true;
         }
 
         int FindZero()
@@ -86,6 +110,20 @@ namespace _8PuzzleGame
                 if (Grid[i % 3, i / 3] == 0) return i;
             }
             return 0;
+        }
+
+        int[,] Copy(int[,] input)
+        {
+            int[,] thing = new int[input.GetLength(0), input.GetLength(1)];
+
+            for (int i = 0; i < thing.GetLength(0); i++)
+            {
+                for (int j = 0; j < thing.GetLength(1); j++)
+                {
+                    thing[i, j] = input[i, j];
+                }
+            }
+            return thing;
         }
     }
 }
