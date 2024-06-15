@@ -5,6 +5,9 @@ using MonoGame.Extended;
 
 using AIWorld;
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Linq;
 
 
 namespace _8PuzzleGame
@@ -29,9 +32,15 @@ namespace _8PuzzleGame
             
             graf = new Graph<GameState>();
             var fml = new GameState();
-            graf.AddVertex(new Vertex<GameState>(fml, fml.GetNeighbors));
+            graf.AddVertex(new Vertex<GameState>(fml, GetNeighborVertecies));
 
             base.Initialize();
+        }
+
+        public List<(Vertex<GameState> destination, int weight)> GetNeighborVertecies(Vertex<GameState> curr)
+        { 
+            var neighbors = curr.Value.GetNeighbors();
+            return neighbors.Select(x => (new Vertex<GameState>(x, GetNeighborVertecies), 1)).ToList();
         }
 
         protected override void LoadContent()
@@ -46,7 +55,7 @@ namespace _8PuzzleGame
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            
+            var yeet = graf.Search(new GameState(), new GameState(new int[,] { { 1, 4, 0 }, { 2, 5, 7 }, { 3, 6, 8 } }), new Frontier<GameState>(), Searchs.BFS);
 
             base.Update(gameTime);
         }

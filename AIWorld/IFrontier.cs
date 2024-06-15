@@ -40,7 +40,7 @@ namespace AIWorld
             frontier.Dequeue();
         }
 
-        public bool Contains(Vertex<T> vertex) => frontier.UnorderedItems.Where(x => x.Element.Equals(vertex)).Count() > 0;
+        public bool Contains(Vertex<T> vertex) => frontier.UnorderedItems.Where(x => x.Element.Value.Equals(vertex.Value)).Count() > 0;
         public bool Contains(T value) => frontier.UnorderedItems.Where(x => x.Element.Value.Equals(value)).Count() > 0;
     }
 }

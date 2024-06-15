@@ -51,7 +51,11 @@ namespace AIWorld
                 var priorities = search(frontier.Next.GetNeighbors());
                 foreach (var neighbor in priorities)
                 {
-                    frontier.Add(neighbor.vertex, neighbor.priority);
+                    throw new Exception("make list.contains use my comparison");
+                    if (!frontier.Contains(neighbor.vertex) && !visited.Contains(neighbor.vertex))
+                    {
+                        frontier.Add(neighbor.vertex, neighbor.priority);
+                    }
                     if (founders.ContainsKey(neighbor.vertex))
                     {
                         if (founders[neighbor.vertex].GetNeighbors().First(x => x.destination == neighbor.vertex).weight
