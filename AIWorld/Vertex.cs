@@ -47,5 +47,10 @@ namespace AIWorld
 
             return other.Value.Equals(Value);// && other.Neighbors.SequenceEqual(Neighbors);
         }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
     }
 }

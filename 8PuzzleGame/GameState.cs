@@ -112,6 +112,28 @@ namespace _8PuzzleGame
             return true;
         }
 
+        public override int GetHashCode()
+        {
+            int result = 0;
+            for (var x = 0;x < 3;x ++)
+            {
+                for (var y = 0;y < 3;y ++)
+                {
+                    result *= 10;
+                    result += Grid[x, y];
+                }
+            }
+
+            /*for (int i = 0; i < 9; i++)
+            {
+                result *= 10;
+                result += Grid[i % 3, i / 3];
+                //result += Grid[i % 3, i / 3] * (int)Math.Pow(10, 8 - i);
+            }*/
+
+            return result;
+        }
+
         int FindZero()
         {
             for (int i = 0; i < 10; i++)
@@ -141,7 +163,7 @@ namespace _8PuzzleGame
 
             foreach (var neighbor in neighbors)
             {
-                result.Add((neighbor.destination, Math.Abs(defaultValue - neighbor.destination.Value.value)));
+                result.Add((neighbor.destination, neighbor.destination.Value.value));
             }
 
             return result;

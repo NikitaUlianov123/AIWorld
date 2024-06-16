@@ -33,9 +33,12 @@ namespace _8PuzzleGame
             // TODO: Add your initialization logic here
 
             startState = new int[,]{
-                { 1, 2, 3 },
-                { 7, 4, 5 },
-                { 8, 0, 6 } };
+                //{ 1, 2, 3 },
+                //{ 7, 4, 5 },
+                //{ 8, 0, 6 } };
+                { 4, 1, 2 },
+                { 7, 5, 3 },
+                { 0, 8, 6 } };
 
             graf = new Graph<GameState>();
             var fml = new GameState(invert(startState));
