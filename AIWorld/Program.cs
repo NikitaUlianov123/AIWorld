@@ -3,6 +3,7 @@
     internal class Program
     {
         //Todo:
+        //make cost track
         //get shit to kinda work (DONE!!!!1)
         //do a* and heuristic (mostly done, finish later)
 

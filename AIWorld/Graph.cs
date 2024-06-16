@@ -47,7 +47,9 @@ namespace AIWorld
             
             while (!frontier.Next.Value.Equals(end))
             {
-                var priorities = search(frontier.Next.GetNeighbors());
+                var Next = frontier.Next;
+                frontier.RemoveNext();//so that if a better thing is found it doesn't delete it immediatly
+                var priorities = search(Next.GetNeighbors());
                 foreach (var neighbor in priorities)
                 {
                     if (!frontier.Contains(neighbor.vertex) && !visited.Contains(neighbor.vertex))
@@ -56,19 +58,18 @@ namespace AIWorld
                     }
                     if (founders.ContainsKey(neighbor.vertex))
                     {
-                        if (founders[neighbor.vertex].GetNeighbors().First(x => x.destination == neighbor.vertex).weight
-                            > frontier.Next.GetNeighbors().First(x => x.destination == neighbor.vertex).weight)
+                        if (founders[neighbor.vertex].GetNeighbors().First(x => x.destination.Equals(neighbor.vertex)).weight
+                            > Next.GetNeighbors().First(x => x.destination.Equals(neighbor.vertex)).weight)
                         {
-                            founders[neighbor.vertex] = frontier.Next;
+                            founders[neighbor.vertex] = Next;
                         }
                     }
-                    else
+                    else if(!visited.Contains(neighbor.vertex))
                     {
-                        founders.Add(neighbor.vertex, frontier.Next);
+                        founders.Add(neighbor.vertex, Next);
                     }
                 }
-                visited.Add(frontier.Next);
-                frontier.RemoveNext();
+                visited.Add(Next);
             }
 
             List<Vertex<T>> result = new List<Vertex<T>>();
