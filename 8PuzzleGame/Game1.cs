@@ -17,9 +17,8 @@ namespace _8PuzzleGame
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
 
-        Graph<GameState> graf;
-
         int[,] startState;
+        AgentRunner<GameState> runner;
 
         public Game1()
         {
@@ -40,17 +39,11 @@ namespace _8PuzzleGame
                 { 7, 5, 3 },
                 { 0, 8, 6 } };
 
-            graf = new Graph<GameState>();
-            var fml = new GameState(invert(startState));
-            graf.AddVertex(new Vertex<GameState>(fml, GetNeighborVertecies));
+            var agent = new AStarAgent<GameState>(x => x.value, new GameState(invert(startState)));
+
+            runner = new AgentRunner<GameState>(new EightPuzzle(), agent);
 
             base.Initialize();
-        }
-
-        public List<(Vertex<GameState> destination, int weight)> GetNeighborVertecies(Vertex<GameState> curr)
-        { 
-            var neighbors = curr.Value.GetNeighbors();
-            return neighbors.Select(x => (new Vertex<GameState>(x, GetNeighborVertecies), 1)).ToList();
         }
 
         protected override void LoadContent()
@@ -65,9 +58,7 @@ namespace _8PuzzleGame
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            
-
-            var yeet = graf.Search(new GameState(invert(startState)), new GameState(), new Frontier<GameState>(), GameState.Search);
+            runner.DoTurn();
 
             base.Update(gameTime);
         }
