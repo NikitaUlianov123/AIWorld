@@ -8,11 +8,19 @@ using System.Threading.Tasks;
 
 namespace _8PuzzleGame
 {
+    public class EightPuzzle : IEnvironment<GameState>
+    {
+        public GameState TargetState => new GameState();
+
+        public List<(GameState state, int cost)> GetSuccessors(GameState currentState)
+        {
+            return currentState.GetNeighbors().Select(x => (x, 1)).ToList();
+        }
+    }
+
     public class GameState
     {
-        static int defaultValue = 123456780;
-
-        enum Directions { Up, Down, Left, Right }
+       enum Directions { Up, Down, Left, Right }
 
         public int value
         {
@@ -155,18 +163,6 @@ namespace _8PuzzleGame
                 }
             }
             return thing;
-        }
-
-        public static List<(Vertex<GameState> vertex, int priority)> Search(List<(Vertex<GameState> destination, int weight)> neighbors)
-        {
-            List<(Vertex<GameState> vertex, int priority)> result = new List<(Vertex<GameState> vertex, int priority)>();
-
-            foreach (var neighbor in neighbors)
-            {
-                result.Add((neighbor.destination, neighbor.destination.Value.value));
-            }
-
-            return result;
         }
     }
 }

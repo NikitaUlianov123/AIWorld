@@ -10,29 +10,28 @@ namespace AIWorld
 {
     public interface IFrontier<T>
     {
-        Vertex<T> Next { get;}
+        T Next { get;}
 
-        void Add(Vertex<T> vertex, int priority);
+        void Add(T state, int priority);
 
         void RemoveNext();
 
-        bool Contains(Vertex<T> vertex);
-        bool Contains(T value);
+        bool Contains(T state);
     }
 
     public class Frontier<T> : IFrontier<T>
     {
-        public PriorityQueue<Vertex<T>, int> frontier;
-        public Vertex<T> Next { get => frontier.Peek(); }
+        public PriorityQueue<T, int> frontier;
+        public T Next { get => frontier.Peek(); }
 
         public Frontier()
         {
-            frontier = new PriorityQueue<Vertex<T>, int>();
+            frontier = new PriorityQueue<T, int>();
         }
 
-        public void Add(Vertex<T> vertex, int priority)
+        public void Add(T state, int priority)
         {
-            frontier.Enqueue(vertex, priority);
+            frontier.Enqueue(state, priority);
         }
 
         public void RemoveNext()
@@ -40,7 +39,6 @@ namespace AIWorld
             frontier.Dequeue();
         }
 
-        public bool Contains(Vertex<T> vertex) => frontier.UnorderedItems.Where(x => x.Element.Value.Equals(vertex.Value)).Count() > 0;
-        public bool Contains(T value) => frontier.UnorderedItems.Where(x => x.Element.Value.Equals(value)).Count() > 0;
+        public bool Contains(T state) => frontier.UnorderedItems.Where(x => x.Equals(state)).Count() > 0;
     }
 }
