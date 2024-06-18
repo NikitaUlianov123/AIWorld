@@ -8,9 +8,9 @@ namespace AIWorld
 {
     public class AgentRunner<T>
     {
-        IEnvironment<T> environment;
-
-        List<IAgent<T>> agents;
+        public IEnvironment<T> environment;
+        
+        public List<IAgent<T>> agents;
 
         public AgentRunner(IEnvironment<T> env, IAgent<T> agent)
         {

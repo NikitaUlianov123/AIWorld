@@ -17,6 +17,10 @@ namespace _8PuzzleGame
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
 
+        SpriteFont font;
+        TimeSpan timer;
+
+
         int[,] startState;
         AgentRunner<GameState> runner;
 
@@ -29,7 +33,8 @@ namespace _8PuzzleGame
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            timer = TimeSpan.Zero;
+
 
             startState = new int[,]{
                 //{ 1, 2, 3 },
@@ -50,7 +55,7 @@ namespace _8PuzzleGame
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            font = Content.Load<SpriteFont>("Font");
         }
 
         protected override void Update(GameTime gameTime)
@@ -58,18 +63,15 @@ namespace _8PuzzleGame
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            runner.DoTurn();
+            timer += gameTime.ElapsedGameTime;
+
+            if (true)//timer.Seconds >= 1)
+            {
+                runner.DoTurn();
+                timer = TimeSpan.Zero;
+            }
 
             base.Update(gameTime);
-        }
-
-        protected override void Draw(GameTime gameTime)
-        {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            // TODO: Add your drawing code here
-
-            base.Draw(gameTime);
         }
 
         int[,] invert(int[,] input)
@@ -84,5 +86,26 @@ namespace _8PuzzleGame
             }
             return output;
         }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+
+            spriteBatch.Begin();
+
+            for (int x = 0; x < 3; x++)
+            {
+                for (int y = 0; y < 3; y++)
+                {
+                    spriteBatch.FillRectangle(new Rectangle(x * 100, y * 100, 100, 100), runner.agents[0].CurrentGameState.Grid[x, y] == 0 ? Color.BlanchedAlmond : Color.Peru);
+                    spriteBatch.DrawString(font, runner.agents[0].CurrentGameState.Grid[x, y].ToString(), new Vector2((x * 100) + 50, (y * 100) + 50), Color.Black);
+                }
+            }
+
+            spriteBatch.End();
+
+            base.Draw(gameTime);
+        }
+
     }
 }

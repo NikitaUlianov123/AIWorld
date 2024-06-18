@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using static System.Net.Mime.MediaTypeNames;
+
 namespace AIWorld
 {
     public interface IAgent<T>
@@ -131,8 +133,11 @@ namespace AIWorld
 
         public Func<T, int> Heuristic { get; set; }
 
+        bool Rewinding = false;
+        int RewindCounter = 0;
+
         public AStarAgent(Func<T, int> heuristic, T startState)
-        { 
+        {
             Heuristic = heuristic;
             CurrentGameState = startState;
             Frontier = new Frontier<T>();
@@ -140,9 +145,9 @@ namespace AIWorld
             Visited = new List<T>();
         }
 
-        public T Move(List<(T state, int cost)> successors)
+        public T Move(List<(T state, int cost)> successors)//Assuming moves can always be undone, rewrite if not
         {
-            Frontier.RemoveNext();
+            if(!Rewinding) Frontier.RemoveNext();
             foreach (var next in successors)
             {
                 if (!Frontier.Contains(next.state) && !Visited.Contains(next.state))
@@ -150,8 +155,22 @@ namespace AIWorld
                     Frontier.Add(next.state, Heuristic(next.state) + Cost);
                 }
             }
+
             Visited.Add(CurrentGameState);
-            return Frontier.Next;
+            if (Visited.Contains(Frontier.Next)) Frontier.RemoveNext();//To prevent loops
+
+            if (successors.Where(x => x.state.Equals(Frontier.Next)).Count() > 0)//Frontier.Next is a direct successor
+            {
+                Rewinding = false;
+                return Frontier.Next;
+            }
+            else//Frontier.Next was a successor to a previous state, backtracking
+            {
+                if (!Rewinding) RewindCounter = 0;
+                Rewinding = true;
+                RewindCounter += 2;
+                return Visited[^RewindCounter];
+            }
         }
     }
 
