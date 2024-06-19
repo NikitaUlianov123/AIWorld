@@ -166,9 +166,9 @@ namespace AIWorld
             }
             else//Frontier.Next was a successor to a previous state, backtracking
             {
-                if (!Rewinding) RewindCounter = 0;
+                if (!Rewinding) RewindCounter = 2;
+                else RewindCounter++;
                 Rewinding = true;
-                RewindCounter += 2;
                 return Visited[^RewindCounter];
             }
         }
