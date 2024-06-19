@@ -65,7 +65,7 @@ namespace _8PuzzleGame
 
             timer += gameTime.ElapsedGameTime;
 
-            if (true)//timer.Seconds >= 1)
+            if (timer.Seconds >= 1)
             {
                 runner.DoTurn();
                 timer = TimeSpan.Zero;
