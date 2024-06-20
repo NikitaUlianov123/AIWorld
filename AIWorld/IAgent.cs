@@ -9,7 +9,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace AIWorld
 {
-    public interface IAgent<T>
+    public interface IAgent<T> where T : IGameState
     {
         int Cost { get; }
 
@@ -17,12 +17,12 @@ namespace AIWorld
 
         IFrontier<T> Frontier { get; }
 
-        T CurrentGameState { get; set; }
+        T CurrentGameState { get;}
 
-        T Move(List<(T state, int cost)> successors);
+        T Move(List<Successor<T>> successors);
     }
 
-    public class BFSAgent<T> : IAgent<T>
+    public class BFSAgent<T> : IAgent<T> where T : IGameState
     {
         public int Cost { get; private set; }
 
@@ -40,14 +40,14 @@ namespace AIWorld
             Visited = new List<T>();
         }
 
-        public T Move(List<(T state, int cost)> successors)
+        public T Move(List<Successor<T>> successors)
         {
             Frontier.RemoveNext();
             foreach (var next in successors)
             {
-                if (!Frontier.Contains(next.state) && !Visited.Contains(next.state))
+                if (!Frontier.Contains(next.State) && !Visited.Contains(next.State))
                 {
-                    Frontier.Add(next.state, next.cost);
+                    Frontier.Add(next.State, next.Cost);
                 }
             }
             Visited.Add(CurrentGameState);
@@ -55,7 +55,7 @@ namespace AIWorld
         }
     }
 
-    public class DFSAgent<T> : IAgent<T>
+    public class DFSAgent<T> : IAgent<T> where T : IGameState
     {
         public int Cost { get; private set; }
 
@@ -73,14 +73,14 @@ namespace AIWorld
             Visited = new List<T>();
         }
 
-        public T Move(List<(T state, int cost)> successors)
+        public T Move(List<Successor<T>> successors)
         {
             Frontier.RemoveNext();
             foreach (var next in successors)
             {
-                if (!Frontier.Contains(next.state) && !Visited.Contains(next.state))
+                if (!Frontier.Contains(next.State) && !Visited.Contains(next.State))
                 {
-                    Frontier.Add(next.state, -next.cost);
+                    Frontier.Add(next.State, -next.Cost);
                 }
             }
             Visited.Add(CurrentGameState);
@@ -88,7 +88,7 @@ namespace AIWorld
         }
     }
 
-    public class UCSAgent<T> : IAgent<T>
+    public class UCSAgent<T> : IAgent<T> where T : IGameState
     {
         public int Cost { get; private set; }
 
@@ -106,14 +106,14 @@ namespace AIWorld
             Visited = new List<T>();
         }
 
-        public T Move(List<(T state, int cost)> successors)
+        public T Move(List<Successor<T>> successors)
         {
             Frontier.RemoveNext();
             foreach (var next in successors)
             {
-                if (!Frontier.Contains(next.state) && !Visited.Contains(next.state))
+                if (!Frontier.Contains(next.State) && !Visited.Contains(next.State))
                 {
-                    Frontier.Add(next.state, 1);
+                    Frontier.Add(next.State, 1);
                 }
             }
             Visited.Add(CurrentGameState);
@@ -121,7 +121,7 @@ namespace AIWorld
         }
     }
 
-    public class AStarAgent<T> : IAgent<T>
+    public class AStarAgent<T> : IAgent<T> where T : IGameState
     {
         public int Cost { get; private set; }
 
@@ -145,21 +145,21 @@ namespace AIWorld
             Visited = new List<T>();
         }
 
-        public T Move(List<(T state, int cost)> successors)//Assuming moves can always be undone, rewrite if not
+        public T Move(List<Successor<T>> successors)//Assuming moves can always be undone, rewrite if not
         {
             if(!Rewinding) Frontier.RemoveNext();
             foreach (var next in successors)
             {
-                if (!Frontier.Contains(next.state) && !Visited.Contains(next.state))
+                if (!Frontier.Contains(next.State) && !Visited.Contains(next.State))
                 {
-                    Frontier.Add(next.state, Heuristic(next.state) + Cost);
+                    Frontier.Add(next.State, Heuristic(next.State) + Cost);
                 }
             }
 
             Visited.Add(CurrentGameState);
             if (Visited.Contains(Frontier.Next)) Frontier.RemoveNext();//To prevent loops
 
-            if (successors.Where(x => x.state.Equals(Frontier.Next)).Count() > 0)//Frontier.Next is a direct successor
+            if (successors.Where(x => x.State.Equals(Frontier.Next)).Count() > 0)//Frontier.Next is a direct successor
             {
                 Rewinding = false;
                 return Frontier.Next;
@@ -174,7 +174,7 @@ namespace AIWorld
         }
     }
 
-    public class BogoAgent<T> : IAgent<T>
+    public class BogoAgent<T> : IAgent<T> where T : IGameState
     {
         public int Cost { get; private set; }
 
@@ -195,18 +195,71 @@ namespace AIWorld
             Visited = new List<T>();
         }
 
-        public T Move(List<(T state, int cost)> successors)
+        public T Move(List<Successor<T>> successors)
         {
             Frontier.RemoveNext();
             foreach (var next in successors)
             {
-                if (!Frontier.Contains(next.state) && !Visited.Contains(next.state))
+                if (!Frontier.Contains(next.State) && !Visited.Contains(next.State))
                 {
-                    Frontier.Add(next.state, random.Next());
+                    Frontier.Add(next.State, random.Next());
                 }
             }
             Visited.Add(CurrentGameState);
             return Frontier.Next;
+        }
+    }
+
+    public interface IFullInfoAgent<T> : IAgent<T> where T : IGameState
+    {
+        Func<T, List<Successor<T>>> GetSuccessors { get; set; }
+    }
+
+    public class ExpectiMax<T> : IFullInfoAgent<T> where T : IGameState
+    {
+        class Node<t> where t : IGameState
+        {
+            public t State;
+            public List<(Node<t>, float chance)> Successors;
+            public Node(Func<t, List<Successor<t>>> successors, t startState)
+            {
+                State = startState;
+                if (!State.IsTerminal)
+                { 
+                    var next = successors(State);
+                    foreach (var nex in next)
+                    {
+                        Successors.Add((new Node<t>(successors, nex.State), nex.Chance));
+                    }
+                    State.Score = Successors.Sum(x => x.Item1.State.Score * x.Item2);
+                }
+            }
+        }
+
+        public int Cost { get; private set; }
+
+        public List<T> Visited { get; private set; }
+
+        public IFrontier<T> Frontier { get; private set; }
+
+        public T CurrentGameState => State.State;
+
+        public Func<T, List<Successor<T>>> GetSuccessors { get; set; }
+
+        Node<T> State;
+
+        public ExpectiMax(Func<T, List<Successor<T>>> successors, T startState)
+        {
+            GetSuccessors = successors;
+            State = new Node<T>(successors, startState);
+            Frontier = new Frontier<T>();
+            Frontier.Add(CurrentGameState, 1);
+            Visited = new List<T>();
+        }
+
+        public T Move(List<Successor<T>> successors)
+        {
+            
         }
     }
 }
