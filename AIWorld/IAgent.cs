@@ -17,7 +17,7 @@ namespace AIWorld
 
         IFrontier<T> Frontier { get; }
 
-        T CurrentGameState { get;}
+        T CurrentGameState { get; set; }
 
         T Move(List<Successor<T>> successors);
     }
@@ -231,7 +231,7 @@ namespace AIWorld
                     {
                         Successors.Add((new Node<t>(successors, nex.State), nex.Chance));
                     }
-                    State.Score = Successors.Sum(x => x.Item1.State.Score * x.Item2);
+                    State.Score = Successors.Max(x => x.Item1.State.Score * x.Item2);
                 }
             }
         }
@@ -242,16 +242,16 @@ namespace AIWorld
 
         public IFrontier<T> Frontier { get; private set; }
 
-        public T CurrentGameState => State.State;
+        public T CurrentGameState { get => node.State; set => node = node.Successors.First(x => x.Item1.State.Equals(CurrentGameState)).Item1; }
 
         public Func<T, List<Successor<T>>> GetSuccessors { get; set; }
 
-        Node<T> State;
+        Node<T> node;
 
         public ExpectiMax(Func<T, List<Successor<T>>> successors, T startState)
         {
             GetSuccessors = successors;
-            State = new Node<T>(successors, startState);
+            node = new Node<T>(successors, startState);
             Frontier = new Frontier<T>();
             Frontier.Add(CurrentGameState, 1);
             Visited = new List<T>();
@@ -259,7 +259,13 @@ namespace AIWorld
 
         public T Move(List<Successor<T>> successors)
         {
-            
+            int Best = 0;
+            for (var i = 0; i < node.Successors.Count; i++)
+            {
+                if (node.Successors[i].Item1.State.Score > node.Successors[Best].Item1.State.Score) Best = i;
+            }
+
+            return node.Successors[Best].Item1.State;
         }
     }
 }

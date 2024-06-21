@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AIWorld
 {
-    public class AgentRunner<T>
+    public class AgentRunner<T> where T : IGameState
     {
         public IEnvironment<T> environment;
         

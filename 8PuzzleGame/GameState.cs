@@ -1,5 +1,7 @@
 ﻿using AIWorld;
 
+using MonoGame.Extended.Collections;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,15 +14,15 @@ namespace _8PuzzleGame
     {
         public GameState TargetState => new GameState();
 
-        public List<(GameState state, int cost)> GetSuccessors(GameState currentState)
+        public List<Successor<GameState>> GetSuccessors(GameState currentState)
         {
-            return currentState.GetNeighbors().Select(x => (x, 1)).ToList();
+            return currentState.GetNeighbors().Select(x => new Successor<GameState>(x, 1, 1f)).ToList();
         }
     }
 
-    public class GameState
+    public class GameState : IGameState
     {
-       enum Directions { Up, Down, Left, Right }
+        enum Directions { Up, Down, Left, Right }
 
         public int value
         {
@@ -42,6 +44,11 @@ namespace _8PuzzleGame
             }
         }
         public int[,] Grid { get; private set; }
+
+        public bool IsTerminal => value == 18;
+
+        public float Score { get => value; set => stupid = value; }
+        float stupid;
 
         public GameState()
         {
