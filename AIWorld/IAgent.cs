@@ -268,4 +268,44 @@ namespace AIWorld
             return node.Successors[Best].Item1.State;
         }
     }
+
+    public class MarkovAgent<T> : IFullInfoAgent<T> where T : IGameState
+    {
+        public Func<T, List<Successor<T>>> GetSuccessors { get; set; }
+
+        public int Cost { get; set; }
+
+        public List<T> Visited => null;
+
+        public IFrontier<T> Frontier => null;
+
+        public T CurrentGameState { get; set; }
+
+        Dictionary<T, List<T>> Successors;
+
+        public MarkovAgent(Func<T, List<Successor<T>>> successors, List<T> starts)
+        {
+            GetSuccessors = successors;
+
+            Successors = new Dictionary<T, List<T>>();
+            foreach (var start in starts)
+            {
+                Successors.Add(start, new List<T>());
+                for (int i = 0; i < 100; i++)
+                {
+                    var temp = start;
+                    for (int j = 0; j < 100; j++)
+                    {
+                        if()
+                    }
+                    Successors[start].Add(successors[]);
+                }
+            }
+        }
+
+        public T Move(List<Successor<T>> successors)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
