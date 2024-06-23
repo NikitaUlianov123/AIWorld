@@ -217,21 +217,26 @@ namespace AIWorld
 
     public class ExpectiMax<T> : IFullInfoAgent<T> where T : IGameState
     {
-        class Node<t> where t : IGameState
+        class Node
         {
-            public t State;
-            public List<(Node<t>, float chance)> Successors;
-            public Node(Func<t, List<Successor<t>>> successors, t startState)
+            public T State;
+            public float Score;
+            public List<(Node, float chance)> Successors;
+            public Node(Func<T, List<Successor<T>>> successors, T startState, List<T> prev = null)
             {
+                Successors = new List<(Node, float chance)>();
+                if(prev == null) prev = new List<T> ();
                 State = startState;
+                prev.Add(State);
                 if (!State.IsTerminal)
                 { 
                     var next = successors(State);
                     foreach (var nex in next)
                     {
-                        Successors.Add((new Node<t>(successors, nex.State), nex.Chance));
+                        if(!prev.Contains(nex.State)) Successors.Add((new Node(successors, nex.State, prev), nex.Chance));
                     }
-                    State.Score = Successors.Max(x => x.Item1.State.Score * x.Item2);
+                    if (Successors.Count == 0) Score = State.Score;
+                    else Score = Successors.Max(x => x.Item1.Score * x.Item2);
                 }
             }
         }
@@ -246,12 +251,12 @@ namespace AIWorld
 
         public Func<T, List<Successor<T>>> GetSuccessors { get; set; }
 
-        Node<T> node;
+        Node node;
 
         public ExpectiMax(Func<T, List<Successor<T>>> successors, T startState)
         {
             GetSuccessors = successors;
-            node = new Node<T>(successors, startState);
+            node = new Node(successors, startState);
             Frontier = new Frontier<T>();
             Frontier.Add(CurrentGameState, 1);
             Visited = new List<T>();
@@ -296,9 +301,9 @@ namespace AIWorld
                     var temp = start;
                     for (int j = 0; j < 100; j++)
                     {
-                        if()
+                        
                     }
-                    Successors[start].Add(successors[]);
+                    //Successors[start].Add(successors[]);
                 }
             }
         }

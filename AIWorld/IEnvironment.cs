@@ -10,7 +10,7 @@ namespace AIWorld
     {
         T TargetState { get; }
 
-        List<Successor<T>> GetSuccessors(T currentState);
+        List<Successor<T>> GetSuccessors(T State);
 
         T MakeMove(T move, T currentState)
         {
