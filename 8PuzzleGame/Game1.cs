@@ -46,7 +46,7 @@ namespace _8PuzzleGame
 
             var start = new EightPuzzle();
 
-            runner = new AgentRunner<GameState>(start, new ExpectiMax<GameState>(start.GetSuccessors, new GameState(startState)));
+            runner = new AgentRunner<GameState>(start, new ExpectiMax<GameState>(start.GetSuccessors,,new GameState(startState)));
 
             base.Initialize();
         }

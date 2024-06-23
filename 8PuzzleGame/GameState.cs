@@ -45,7 +45,14 @@ namespace _8PuzzleGame
         }
         public int[,] Grid { get; private set; }
 
-        public bool IsTerminal => value == 18;
+        public bool IsTerminal
+        {
+            get
+            {
+                var solved = new GameState();
+                return value == solved.value;
+            }
+        }
 
         public float Score { get => value; set => stupid = value; }
         float stupid;

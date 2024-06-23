@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "8PuzzleGame", "8PuzzleGame\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSP", "CSP\CSP.csproj", "{FBC1B376-C5AF-4677-9E15-A94A89A3BE52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markov_Chain", "Markov_Chain\Markov_Chain.csproj", "{17EAFF80-CEE4-4825-AE8D-1D676D7B75F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Markov_Chain", "Markov_Chain\Markov_Chain.csproj", "{17EAFF80-CEE4-4825-AE8D-1D676D7B75F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicTacChance", "TicTacChance\TicTacChance.csproj", "{FDF11874-16FC-4552-B30B-1A5310A57CD9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{17EAFF80-CEE4-4825-AE8D-1D676D7B75F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17EAFF80-CEE4-4825-AE8D-1D676D7B75F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17EAFF80-CEE4-4825-AE8D-1D676D7B75F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDF11874-16FC-4552-B30B-1A5310A57CD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDF11874-16FC-4552-B30B-1A5310A57CD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDF11874-16FC-4552-B30B-1A5310A57CD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDF11874-16FC-4552-B30B-1A5310A57CD9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
