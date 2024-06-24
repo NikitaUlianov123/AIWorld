@@ -12,10 +12,6 @@ namespace AIWorld
 
         List<Successor<T>> GetSuccessors(T State);
 
-        T MakeMove(T move, T currentState)
-        {
-            if (GetSuccessors(currentState).Where(x => x.State.Equals(move)).Count() > 0) return move;
-            throw new InvalidOperationException("Cannot move to requested spot");
-        }
+        T MakeMove(T move, T currentState);
     }
 }

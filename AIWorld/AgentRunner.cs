@@ -23,7 +23,9 @@ namespace AIWorld
         { 
             for (int i = 0;i < agents.Count;i++)
             {
-                agents[i].CurrentGameState = environment.MakeMove(agents[i].Move(environment.GetSuccessors(agents[i].CurrentGameState)), agents[i].CurrentGameState);
+                var successors = environment.GetSuccessors(agents[i].CurrentGameState);
+                var move = agents[i].Move(successors);
+                agents[i].CurrentGameState = environment.MakeMove(move, agents[i].CurrentGameState);
             }
         }
     }
