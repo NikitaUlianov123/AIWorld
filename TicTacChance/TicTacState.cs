@@ -35,16 +35,34 @@ namespace TicTacChance
 
         public bool Turn = true;
 
-        public bool missed = false;
+        public Dictionary<bool, bool> Missed;
 
         public TicTacState()
         {
-            Grid = new bool?[3,3];
+            Grid = new bool?[3, 3];
+            Missed = new Dictionary<bool, bool>();
+            Missed.Add(true, false);
+            Missed.Add(false, false);
         }
 
-        public TicTacState(bool?[,] grid)
+        public TicTacState(bool?[,] grid, bool currTurn, bool missed, (int x, int y) move)
         {
-            Grid = grid;
+            Grid = Copy(grid);
+            if(!missed) Grid[move.x, move.y] = currTurn;
+
+            Turn = !currTurn;
+
+            Missed = new Dictionary<bool, bool>();
+            Missed.Add(true, false);
+            Missed.Add(false, false);
+
+            Missed[!currTurn] = missed;
+        }
+        public TicTacState(TicTacState ticTacState)
+        {
+            Grid = Copy(ticTacState.Grid);
+            Turn = ticTacState.Turn;
+            Missed = ticTacState.Missed;
         }
 
         public void setValue()
@@ -157,6 +175,57 @@ namespace TicTacChance
                     return;
                 }
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj.GetType() != typeof(TicTacState)) return false;
+
+            TicTacState other = obj as TicTacState;
+
+            for (int i = 0; i < other.Grid.GetLength(0); i++)
+            {
+                for (int j = 0; j < other.Grid.GetLength(1); j++)
+                {
+                    if (other.Grid[i, j] != Grid[i, j]) return false;
+                }
+            }
+
+            return Missed[true] == other.Missed[true] && Missed[false] == other.Missed[false];
+        }
+
+        public override int GetHashCode()
+        {
+            int result = 0;
+            for (var x = 0; x < 3; x++)
+            {
+                for (var y = 0; y < 3; y++)
+                {
+                    result *= 10;
+                    if (Grid[y, x] == true) result += 1;
+                    else if (Grid[y, x] == false) result += 2;
+                }
+            }
+
+            result *= 10;
+            if (Missed[true]) result += 1;
+            if (Missed[false]) result += 2;
+
+            return result;
+        }
+
+        T[,] Copy<T>(T[,] input)
+        {
+            T[,] thing = new T[input.GetLength(0), input.GetLength(1)];
+
+            for (int i = 0; i < thing.GetLength(0); i++)
+            {
+                for (int j = 0; j < thing.GetLength(1); j++)
+                {
+                    thing[i, j] = input[i, j];
+                }
+            }
+            return thing;
         }
     }
 }

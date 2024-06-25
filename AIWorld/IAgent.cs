@@ -221,11 +221,11 @@ namespace AIWorld
         {
             public T State;
             public float Score;
-            public List<(Node, float chance)> Successors;
-            public Node(Func<T, List<Successor<T>>> successors, T startState, List<T> prev = null)
+            public List<(Node, float chance)> Children;
+            public Node(Func<T, List<Successor<T>>> successors, T startState, HashSet<T> prev = null)
             {
-                Successors = new List<(Node, float chance)>();
-                if(prev == null) prev = new List<T> ();
+                Children = new List<(Node, float chance)>();
+                if(prev == null) prev = new HashSet<T> ();
                 State = startState;
                 prev.Add(State);
                 if (!State.IsTerminal)
@@ -233,10 +233,10 @@ namespace AIWorld
                     var next = successors(State);
                     foreach (var nex in next)
                     {
-                        if(!prev.Contains(nex.State)) Successors.Add((new Node(successors, nex.State, prev), nex.Chance));
+                        if(!prev.Contains(nex.State)) Children.Add((new Node(successors, nex.State, prev), nex.Chance));
                     }
-                    if (Successors.Count == 0) Score = State.Score;
-                    else Score = Successors.Max(x => x.Item1.Score * x.Item2);
+                    if (Children.Count == 0) Score = State.Score;
+                    else Score = Children.Max(x => x.Item1.Score * x.Item2);
                 }
             }
         }
@@ -247,7 +247,7 @@ namespace AIWorld
 
         public IFrontier<T> Frontier { get; private set; }
 
-        public T CurrentGameState { get => node.State; set => node = node.Successors.First(x => x.Item1.State.Equals(CurrentGameState)).Item1; }
+        public T CurrentGameState { get => node.State; set => node = node.Children.First(x => x.Item1.State.Equals(value)).Item1; }
 
         public Func<T, List<Successor<T>>> GetSuccessors { get; set; }
 
@@ -265,12 +265,12 @@ namespace AIWorld
         public T Move(List<Successor<T>> successors)
         {
             int Best = 0;
-            for (var i = 0; i < node.Successors.Count; i++)
+            for (var i = 0; i < node.Children.Count; i++)
             {
-                if (node.Successors[i].Item1.State.Score > node.Successors[Best].Item1.State.Score) Best = i;
+                if (node.Children[i].Item1.State.Score > node.Children[Best].Item1.State.Score) Best = i;
             }
 
-            return node.Successors[Best].Item1.State;
+            return node.Children[Best].Item1.State;
         }
     }
 

@@ -13,7 +13,7 @@ namespace TicTacChance
         Random randy = new Random();
         public TicTacState TargetState => throw new NotImplementedException();
 
-        float[,] chances =
+        public static float[,] chances =
             {
             { .5f, 1, .5f },
             { 1, .25f, 1  },
@@ -31,10 +31,18 @@ namespace TicTacChance
                 {
                     if (State.Grid[i, j] == null)
                     {
-                        bool?[,] temp = new bool?[0, 0];
-                        State.Grid.CopyTo(temp, 0);
+                        //If we missed before, we can only succeed
+                        //otherwise, chance of success and 1-chance of failure
 
-                        result.Add(new Successor<TicTacState>(new TicTacState(temp), 1, chances[i, j]));
+                        if (State.Missed[State.Turn] || chances[i, j] >= 1)
+                        {
+                            result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, (i, j)), 1, 1));
+                        }
+                        else
+                        {
+                            result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, (i, j)), 1, chances[i, j]));
+                            result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, true, (i, j)), 1, 1 - chances[i, j]));
+                        }
                     }
                 }
             }
@@ -49,11 +57,11 @@ namespace TicTacChance
             {
                 var successor = successors.First();
                 var number = randy.NextDouble();
-                if (number < successor.Chance || currentState.missed)
+                if (number < successor.Chance)
                 {
                     return successor.State;
                 }
-                currentState.missed = true;
+                currentState.Missed[currentState.Turn] = true;
                 return currentState;
             }
             throw new InvalidOperationException("Cannot move to requested spot");
