@@ -32,7 +32,7 @@ namespace TicTacChance
                     if (State.Grid[i, j] == null)
                     {
                         //If we missed before, we can only succeed
-                        //otherwise, chance of success and 1-chance of failure
+                        //otherwise, chance of success and 1 - chance of failure
 
                         if (State.Missed[State.Turn] || chances[i, j] >= 1)
                         {
@@ -43,6 +43,15 @@ namespace TicTacChance
                             result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, (i, j)), 1, chances[i, j]));
                             result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, true, (i, j)), 1, 1 - chances[i, j]));
                         }
+
+                        //if (State.Missed[State.Turn])
+                        //{
+                        //    result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, (i, j)), 1, 1));
+                        //}
+                        //else
+                        //{
+                        //    result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, (i, j)), 1, chances[i, j]));
+                        //}
                     }
                 }
             }
