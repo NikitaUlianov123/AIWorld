@@ -50,13 +50,14 @@ namespace TicTacChance
             Grid = Copy(grid);
             if(!missed) Grid[move.x, move.y] = currTurn;
 
-            Turn = !currTurn;
 
             Missed = new Dictionary<bool, bool>();
             Missed.Add(true, false);
             Missed.Add(false, false);
 
             Missed[!currTurn] = missed;
+
+            Turn = !currTurn;
         }
         public TicTacState(TicTacState ticTacState)
         {
@@ -196,18 +197,17 @@ namespace TicTacChance
 
         public override int GetHashCode()
         {
-            int result = 0;
+            int result = 1;
             for (var x = 0; x < 3; x++)
             {
                 for (var y = 0; y < 3; y++)
                 {
-                    result *= 10;
                     if (Grid[y, x] == true) result += 1;
                     else if (Grid[y, x] == false) result += 2;
+                    result *= 10;
                 }
             }
 
-            result *= 10;
             if (Missed[true]) result += 1;
             if (Missed[false]) result += 2;
 

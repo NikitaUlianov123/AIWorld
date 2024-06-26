@@ -222,21 +222,37 @@ namespace AIWorld
             public T State;
             public float Score;
             public List<(Node, float chance)> Children;
-            public Node(Func<T, List<Successor<T>>> successors, T startState, HashSet<T> prev = null)
+            public Node(Func<T, List<Successor<T>>> successors, T startState, Dictionary<T, Node> prev = null)
             {
                 Children = new List<(Node, float chance)>();
-                if(prev == null) prev = new HashSet<T> ();
+                if(prev == null) prev = new Dictionary<T, Node>();
                 State = startState;
-                prev.Add(State);
-                if (!State.IsTerminal)
-                { 
-                    var next = successors(State);
-                    foreach (var nex in next)
+                if (!prev.ContainsKey(State))
+                {
+                    prev.Add(State, this);
+                    if (!State.IsTerminal)
                     {
-                        if(!prev.Contains(nex.State)) Children.Add((new Node(successors, nex.State, prev), nex.Chance));
+                        var next = successors(State);
+                        foreach (var nex in next)
+                        {
+                            if (prev.ContainsKey(nex.State))
+                            {
+                                //changed this last
+                                //Children.AddRange(prev[nex.State].Children);
+                                Children.Add((prev[nex.State], nex.Chance));
+                            }
+                            else
+                            {
+                                Children.Add((new Node(successors, nex.State, prev), nex.Chance));
+                                //if (nex.Chance < 1)
+                                //{
+                                //    Children.Add((new Node(successors, State, prev), 1 - nex.Chance));
+                                //}
+                            }
+                        }
+                        if (Children.Count == 0) Score = State.Score;
+                        else Score = Children.Max(x => x.Item1.Score * x.Item2);
                     }
-                    if (Children.Count == 0) Score = State.Score;
-                    else Score = Children.Max(x => x.Item1.Score * x.Item2);
                 }
             }
         }
@@ -310,6 +326,34 @@ namespace AIWorld
 
         public T Move(List<Successor<T>> successors)
         {
+            //choose best move
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ModelBasedAgent<T> : IFullInfoAgent<T> where T : IGameState
+    {
+        public Func<T, List<Successor<T>>> GetSuccessors { get; set; }
+
+        public int Cost { get; set; }
+
+        public List<T> Visited => null;
+
+        public IFrontier<T> Frontier => null;
+
+        public T CurrentGameState { get; set; }
+
+        Dictionary<T, T> Model;
+
+        public ModelBasedAgent(T start)
+        {
+            Model = new Dictionary<T, T>();
+        }
+
+        public T Move(List<Successor<T>> successors)
+        {
+            //record result of prev move in Model
+            //make random move
             throw new NotImplementedException();
         }
     }

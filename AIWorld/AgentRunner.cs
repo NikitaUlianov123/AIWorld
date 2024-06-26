@@ -28,5 +28,14 @@ namespace AIWorld
                 agents[i].CurrentGameState = environment.MakeMove(move, agents[i].CurrentGameState);
             }
         }
+
+        public void PlayerTurn(T state)
+        { 
+            var newState = environment.MakeMove(state, agents[0].CurrentGameState);
+            for (int i = 0; i < agents.Count; i++)
+            {
+                agents[i].CurrentGameState = newState;
+            }
+        }
     }
 }

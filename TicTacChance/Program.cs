@@ -12,13 +12,20 @@ namespace TicTacChance
             while (!runner.agents[0].CurrentGameState.IsTerminal)
             {
                 runner.DoTurn();
-                Console.WriteLine($"{runner.agents[0].CurrentGameState.Grid[0, 0]}|{runner.agents[0].CurrentGameState.Grid[0, 1]}|{runner.agents[0].CurrentGameState.Grid[0, 2]}");
-                Console.WriteLine($"{runner.agents[0].CurrentGameState.Grid[1, 0]}|{runner.agents[0].CurrentGameState.Grid[1, 1]}|{runner.agents[0].CurrentGameState.Grid[1, 2]}");
-                Console.WriteLine($"{runner.agents[0].CurrentGameState.Grid[2, 0]}|{runner.agents[0].CurrentGameState.Grid[2, 1]}|{runner.agents[0].CurrentGameState.Grid[2, 2]}");
+                Console.WriteLine($"{Convert(runner.agents[0].CurrentGameState.Grid[0, 0])}|{Convert(runner.agents[0].CurrentGameState.Grid[0, 1])}|{Convert(runner.agents[0].CurrentGameState.Grid[0, 2])}");
+                Console.WriteLine($"{Convert(runner.agents[0].CurrentGameState.Grid[1, 0])}|{Convert(runner.agents[0].CurrentGameState.Grid[1, 1])}|{Convert(runner.agents[0].CurrentGameState.Grid[1, 2])}");
+                Console.WriteLine($"{Convert(runner.agents[0].CurrentGameState.Grid[2, 0])}|{Convert(runner.agents[0].CurrentGameState.Grid[2, 1])}|{Convert(runner.agents[0].CurrentGameState.Grid[2, 2])}");
                 int x = int.Parse(Console.ReadLine());
                 int y = int.Parse(Console.ReadLine());
-                env.MakeMove(new TicTacState(runner.agents[0].CurrentGameState.Grid, false, randy.NextDouble() < TicTacEnvironment.chances[x, y], (x, y)), runner.agents[0].CurrentGameState);
+                runner.PlayerTurn(new TicTacState(runner.agents[0].CurrentGameState.Grid, false, false, (x, y)));
             }
+        }
+
+        static int Convert(bool? bol)
+        {
+            if (bol == true) return 1;
+            else if (bol == false) return 2;
+            return 0;
         }
     }
 }
