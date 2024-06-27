@@ -36,12 +36,12 @@ namespace TicTacChance
 
                         if (State.Missed[State.Turn] || chances[i, j] >= 1)
                         {
-                            result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, (i, j)), 1, 1));
+                            result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, State.Missed, (i, j)), 1, 1));
                         }
                         else
                         {
-                            result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, (i, j)), 1, chances[i, j]));
-                            result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, true, (i, j)), 1, 1 - chances[i, j]));
+                            result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, State.Missed, (i, j)), 1, chances[i, j]));
+                            result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, true, State.Missed, (i, j)), 1, 1 - chances[i, j]));
                         }
 
                         //if (State.Missed[State.Turn])
@@ -71,6 +71,7 @@ namespace TicTacChance
                     return successor.State;
                 }
                 currentState.Missed[currentState.Turn] = true;
+                currentState.Turn = !currentState.Turn;
                 return currentState;
             }
             throw new InvalidOperationException("Cannot move to requested spot");

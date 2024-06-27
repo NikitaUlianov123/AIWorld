@@ -45,17 +45,17 @@ namespace TicTacChance
             Missed.Add(false, false);
         }
 
-        public TicTacState(bool?[,] grid, bool currTurn, bool missed, (int x, int y) move)
+        public TicTacState(bool?[,] grid, bool currTurn, bool missed, Dictionary<bool, bool> prevMissed, (int x, int y) move)
         {
             Grid = Copy(grid);
             if(!missed) Grid[move.x, move.y] = currTurn;
 
 
             Missed = new Dictionary<bool, bool>();
-            Missed.Add(true, false);
-            Missed.Add(false, false);
+            Missed.Add(true, prevMissed[true]);
+            Missed.Add(false, prevMissed[false]);
 
-            Missed[!currTurn] = missed;
+            Missed[currTurn] = missed;
 
             Turn = !currTurn;
         }
@@ -176,6 +176,19 @@ namespace TicTacChance
                     return;
                 }
             }
+
+
+            //Tie
+            bool tie = true;
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (Grid[i, j] == null) tie = false;
+                }
+            }
+            if(tie) state = State.Tie;
+            setValue();
         }
 
         public override bool Equals(object obj)
@@ -192,7 +205,7 @@ namespace TicTacChance
                 }
             }
 
-            return Missed[true] == other.Missed[true] && Missed[false] == other.Missed[false];
+            return Missed[true] == other.Missed[true] && Missed[false] == other.Missed[false] && Turn == other.Turn;
         }
 
         public override int GetHashCode()
@@ -210,6 +223,7 @@ namespace TicTacChance
 
             if (Missed[true]) result += 1;
             if (Missed[false]) result += 2;
+            if (Turn) result += 4;
 
             return result;
         }

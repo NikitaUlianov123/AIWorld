@@ -250,9 +250,9 @@ namespace AIWorld
                                 //}
                             }
                         }
-                        if (Children.Count == 0) Score = State.Score;
-                        else Score = Children.Max(x => x.Item1.Score * x.Item2);
+                        State.Score = Children.Average(x => x.Item1.Score * x.Item2);
                     }
+                    Score = State.Score;
                 }
             }
         }
@@ -283,7 +283,7 @@ namespace AIWorld
             int Best = 0;
             for (var i = 0; i < node.Children.Count; i++)
             {
-                if (node.Children[i].Item1.State.Score > node.Children[Best].Item1.State.Score) Best = i;
+                if (node.Children[i].Item1.Score > node.Children[Best].Item1.Score) Best = i;
             }
 
             return node.Children[Best].Item1.State;
