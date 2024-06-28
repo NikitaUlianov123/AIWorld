@@ -20,9 +20,9 @@ namespace TicTacChance
             { .5f, 1, .5f }
             };//this array makes me sad
 
-        public List<Successor<TicTacState>> GetSuccessors(TicTacState State)
+        public List<Akshun<TicTacState>> GetActions(TicTacState State)
         {
-            List<Successor<TicTacState>> result = new List<Successor<TicTacState>>();
+            List<Akshun<TicTacState>> result = new List<Akshun<TicTacState>>();
             if(State.IsTerminal) return result;
 
             for (int i = 0; i < State.Grid.GetLength(0); i++)
@@ -36,22 +36,15 @@ namespace TicTacChance
 
                         if (State.Missed[State.Turn] || chances[i, j] >= 1)
                         {
-                            result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, State.Missed, (i, j)), 1, 1));
+                            result.Add(new Akshun<TicTacState>(State,
+                                [new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, State.Missed, (i, j)), 1, 1)]));
                         }
                         else
                         {
-                            result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, State.Missed, (i, j)), 1, chances[i, j]));
-                            result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, true, State.Missed, (i, j)), 1, 1 - chances[i, j]));
+                            result.Add(new Akshun<TicTacState>(State,
+                                [new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, State.Missed, (i, j)), 1, chances[i, j]),
+                                 new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, true, State.Missed, (i, j)), 1, 1 - chances[i, j])]));
                         }
-
-                        //if (State.Missed[State.Turn])
-                        //{
-                        //    result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, (i, j)), 1, 1));
-                        //}
-                        //else
-                        //{
-                        //    result.Add(new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, (i, j)), 1, chances[i, j]));
-                        //}
                     }
                 }
             }
@@ -59,16 +52,22 @@ namespace TicTacChance
             return result;
         }
 
-        public TicTacState MakeMove(TicTacState move, TicTacState currentState)
+        public TicTacState MakeMove(Akshun<TicTacState> move, TicTacState currentState)
         {
-            var successors = GetSuccessors(currentState).Where(x => x.State.Equals(move));
-            if (successors.Count() > 0)
+            var actions = GetActions(currentState);
+            if (actions.Count() > 0)
             {
-                var successor = successors.First();
+                var action = actions.First(x => x.Equals(move));
                 var number = randy.NextDouble();
-                if (number < successor.Chance)
+
+                double threshold = 0;
+                foreach (var result in action.Results)
                 {
-                    return successor.State;
+                    if (number + threshold < result.Chance)
+                    {
+                        return result.State;
+                    }
+                    threshold += result.Chance;
                 }
                 currentState.Missed[currentState.Turn] = true;
                 currentState.Turn = !currentState.Turn;

@@ -11,7 +11,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSP", "CSP\CSP.csproj", "{F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Markov_Chain", "Markov_Chain\Markov_Chain.csproj", "{17EAFF80-CEE4-4825-AE8D-1D676D7B75F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicTacChance", "TicTacChance\TicTacChance.csproj", "{FDF11874-16FC-4552-B30B-1A5310A57CD9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicTacChance", "TicTacChance\TicTacChance.csproj", "{FDF11874-16FC-4552-B30B-1A5310A57CD9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheesePuzzle", "CheesePuzzle\CheesePuzzle.csproj", "{4C66AD8C-051F-4166-A303-758066102892}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3B4A9A5B-7BDE-40F3-B439-16B3BB2C0C82}"
+	ProjectSection(SolutionItems) = preProject
+		ToDo.txt = ToDo.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +46,10 @@ Global
 		{FDF11874-16FC-4552-B30B-1A5310A57CD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDF11874-16FC-4552-B30B-1A5310A57CD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDF11874-16FC-4552-B30B-1A5310A57CD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C66AD8C-051F-4166-A303-758066102892}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C66AD8C-051F-4166-A303-758066102892}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C66AD8C-051F-4166-A303-758066102892}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C66AD8C-051F-4166-A303-758066102892}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

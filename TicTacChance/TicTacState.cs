@@ -193,6 +193,10 @@ namespace TicTacChance
 
         public override bool Equals(object obj)
         {
+            if (obj == null)
+            {
+                return false;
+            }
             if (obj.GetType() != typeof(TicTacState)) return false;
 
             TicTacState other = obj as TicTacState;

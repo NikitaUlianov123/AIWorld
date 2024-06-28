@@ -8,7 +8,7 @@ namespace TicTacChance
         {
             //ToDo: when removing pity turns die, fix
             var env = new TicTacEnvironment();
-            var runner = new AgentRunner<TicTacState>(env, new ExpectiMax<TicTacState>(env.GetSuccessors, new TicTacState()));
+            var runner = new AgentRunner<TicTacState>(env, new ExpectiMax<TicTacState>(env.GetActions, new TicTacState()));
             while (!runner.agents[0].CurrentGameState.IsTerminal)
             {
                 runner.DoTurn();
@@ -17,7 +17,8 @@ namespace TicTacChance
                 Console.WriteLine($"{Convert(runner.agents[0].CurrentGameState.Grid[2, 0])}|{Convert(runner.agents[0].CurrentGameState.Grid[2, 1])}|{Convert(runner.agents[0].CurrentGameState.Grid[2, 2])}");
                 int x = int.Parse(Console.ReadLine());
                 int y = int.Parse(Console.ReadLine());
-                runner.PlayerTurn(new TicTacState(runner.agents[0].CurrentGameState.Grid, false, false, runner.agents[0].CurrentGameState.Missed, (x, y)));
+                //find first move that did x, y
+                runner.PlayerTurn(env.GetActions(runner.agents[0].CurrentGameState).First(x => x.Results.Contains(y => y)));
             }
         }
 

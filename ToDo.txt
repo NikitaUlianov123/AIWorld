@@ -1,0 +1,9 @@
+Make actions and transition functions
+
+Finish cheese game
+
+Make Q learning
+do cheese game with Q learning
+
+Make MDP
+do cheese game with MDP
