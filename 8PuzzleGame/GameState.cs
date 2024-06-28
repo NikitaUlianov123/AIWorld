@@ -14,14 +14,14 @@ namespace _8PuzzleGame
     {
         public GameState TargetState => new GameState();
 
-        public List<Successor<GameState>> GetSuccessors(GameState currentState)
+        public List<Successor<GameState>> GetActions(GameState currentState)
         {
             return currentState.GetNeighbors().Select(x => new Successor<GameState>(x, 1, 1f)).ToList();
         }
 
         public GameState MakeMove(GameState move, GameState currentState)
         {
-            if (GetSuccessors(currentState).Where(x => x.State.Equals(move)).Count() > 0) return move;
+            if (GetActions(currentState).Where(x => x.State.Equals(move)).Count() > 0) return move;
             throw new InvalidOperationException("Cannot move to requested spot");
         }
     }

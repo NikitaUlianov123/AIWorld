@@ -23,15 +23,15 @@ namespace AIWorld
         { 
             for (int i = 0;i < agents.Count;i++)
             {
-                var successors = environment.GetSuccessors(agents[i].CurrentGameState);
+                var successors = environment.GetActions(agents[i].CurrentGameState);
                 var move = agents[i].Move(successors);
                 agents[i].CurrentGameState = environment.MakeMove(move, agents[i].CurrentGameState);
             }
         }
 
-        public void PlayerTurn(T state)
+        public void PlayerTurn(Akshun<T> move)
         { 
-            var newState = environment.MakeMove(state, agents[0].CurrentGameState);
+            var newState = environment.MakeMove(move, agents[0].CurrentGameState);
             for (int i = 0; i < agents.Count; i++)
             {
                 agents[i].CurrentGameState = newState;
