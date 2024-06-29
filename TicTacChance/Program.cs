@@ -18,7 +18,15 @@ namespace TicTacChance
                 int x = int.Parse(Console.ReadLine());
                 int y = int.Parse(Console.ReadLine());
                 //find first move that did x, y
-                runner.PlayerTurn(env.GetActions(runner.agents[0].CurrentGameState).First(x => x.Results.Contains(y => y)));
+                Akshun<TicTacState> pick = default;
+                foreach(var action in env.GetActions(runner.agents[0].CurrentGameState))
+                {
+                    foreach (var result in action.Results)
+                    {
+                        if (result.State.Grid[x, y] != null) pick = action;
+                    }
+                }
+                runner.PlayerTurn(pick);
             }
         }
 

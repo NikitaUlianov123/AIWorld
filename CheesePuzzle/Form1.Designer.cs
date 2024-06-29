@@ -37,7 +37,7 @@
             mono1.Location = new Point(12, 12);
             mono1.MouseHoverUpdatesOnly = false;
             mono1.Name = "mono1";
-            mono1.Size = new Size(776, 426);
+            mono1.Size = new Size(776, 710);
             mono1.TabIndex = 0;
             mono1.Text = "mono1";
             // 
@@ -54,7 +54,7 @@
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1014, 450);
+            ClientSize = new Size(1014, 734);
             Controls.Add(button1);
             Controls.Add(mono1);
             Name = "Form1";

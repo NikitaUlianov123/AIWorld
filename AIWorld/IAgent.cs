@@ -349,9 +349,8 @@ namespace AIWorld
         }
     }
 
-    public class ModelBasedAgent<T> : IFullInfoAgent<T> where T : IGameState
+    public class QAgent<T> : IAgent<T> where T : IGameState
     {
-        public Func<T, List<Akshun<T>>> GetActions { get; set; }
 
         public int Cost { get; set; }
 
@@ -361,18 +360,54 @@ namespace AIWorld
 
         public T CurrentGameState { get; set; }
 
-        Dictionary<T, T> Model;
+        (T state, Akshun<T> action) prev;
 
-        public ModelBasedAgent(T start)
+        Dictionary<(T state, Akshun<T> action), float> Model;
+
+        Random random;
+
+        public float Epsilon;
+        public float LearningRate;
+
+        float BestScore = 0;
+
+        public QAgent(T start, float epsilon, float learningRate)
         {
-            Model = new Dictionary<T, T>();
+            CurrentGameState = start;
+            Model = new Dictionary<(T state, Akshun<T> action), float>();
+            Epsilon = epsilon;
+            random = new Random();
+            LearningRate = learningRate;
         }
 
         public Akshun<T> Move(List<Akshun<T>> actions)
         {
-            //record result of prev move in Model
-            //make random move
-            throw new NotImplementedException();
+            if (!prev.Equals(default))
+            {
+                //record result of prev move in Model
+                if (Model.ContainsKey(prev))
+                {
+                    Model[prev] = (Model[prev] * (1-LearningRate)) + (LearningRate * (CurrentGameState.Score + BestScore/*maybe with inflation*/));
+                }
+
+                //backprop to update best score of prev states
+            }
+
+
+            //do move
+            double randy = random.NextDouble();
+            if (randy < Epsilon)
+            {
+                //add random move to model
+                //random move
+                prev = (CurrentGameState, actions[random.Next(actions.Count)]);
+            }
+            else
+            {
+                //best move
+                prev = (CurrentGameState, actions.Where(y => Model[(CurrentGameState, y)].Equals(actions.Max(x => Model[(CurrentGameState, x)]))).First());
+            }
+            return prev.action;
         }
     }
 }

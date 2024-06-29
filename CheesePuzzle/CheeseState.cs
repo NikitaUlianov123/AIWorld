@@ -18,9 +18,39 @@ namespace CheesePuzzle
             FirePit
         }
 
-        public bool IsTerminal => throw new NotImplementedException();
+        public bool IsTerminal
+        {
+            get
+            {
+                return (Mouse.X < 0 || Mouse.X > Grid.GetLength(1) || Mouse.Y < 0 || Mouse.Y > Grid.GetLength(0)) || Grid[Mouse.Y, Mouse.X] != Tile.Empty;
+            }
+        }
 
-        public float Score { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public float Score
+        {
+            get
+            {
+                if (IsTerminal)
+                {
+                    switch (Grid[Mouse.Y, Mouse.X])
+                    { 
+                        case Tile.Wall:
+                            return 0;
+
+                        case Tile.Cheese:
+                            return 1000;
+
+                        case Tile.FirePit:
+                            return -1000;
+
+                        default:
+                            return 0;
+                    }
+                }
+                return 0;
+            }
+            set {}
+        }
 
         public Tile[,] Grid;
         public Point Mouse;
