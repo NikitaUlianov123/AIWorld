@@ -1,9 +1,17 @@
-Make actions and transition functions
-
 Finish cheese game
 
 Make Q learning
 do cheese game with Q learning
 
+redo everything to use sensors instead of gameStates
+agents should take in a function that determines score
+
 Make MDP
 do cheese game with MDP
+
+Make deep Q
+do games with deep Q
+
+multiple agents
+
+unification
