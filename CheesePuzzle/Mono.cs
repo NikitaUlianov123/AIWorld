@@ -18,7 +18,7 @@ namespace CheesePuzzle
         public AgentRunner<CheeseState> Runner;
         protected override void Initialize()
         {
-            Runner = new AgentRunner<CheeseState>(new CheeseEnvironment(), new QAgent<CheeseState>(new CheeseState()));
+            Runner = new AgentRunner<CheeseState>(new CheeseEnvironment(), new QAgent<CheeseState>(new CheeseState(-1), 0.4f, 50));
         }
 
         protected override void Update(GameTime gameTime)

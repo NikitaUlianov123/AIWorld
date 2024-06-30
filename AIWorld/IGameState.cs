@@ -31,7 +31,11 @@ namespace AIWorld
 
             var other = (Akshun<T>)obj;
 
+            if(Start == null) return other.Start == null;
+
             if (!Start.Equals(other.Start)) return false;
+
+            if(Results == null) return other.Results == null;
 
             for (int i = 0; i < Results.Count; i++)
             {
