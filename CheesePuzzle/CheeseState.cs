@@ -30,24 +30,25 @@ namespace CheesePuzzle
         {
             get
             {
+                int reward = 0;
                 if (IsTerminal)
                 {
                     switch (Grid[Mouse.Y, Mouse.X])
                     { 
                         case Tile.Wall:
-                            return 0;
+                            reward = 0;
+                            break;
 
                         case Tile.Cheese:
-                            return 1000;
+                            reward = 1000;
+                            break;
 
                         case Tile.FirePit:
-                            return -1000;
-
-                        default:
-                            return 0;
+                            reward = -1000;
+                            break;
                     }
                 }
-                return 0;
+                return reward + (Lived * CostOfLiving);
             }
             set {}
         }
@@ -55,7 +56,10 @@ namespace CheesePuzzle
         public Tile[,] Grid;
         public Point Mouse;
 
-        public CheeseState()
+        int Lived;
+        int CostOfLiving;
+
+        public CheeseState(int costOfLiving)
         {
             Grid = new Tile[3, 4];
             Grid[1, 1] = Tile.Wall;
@@ -63,12 +67,16 @@ namespace CheesePuzzle
             Grid[1, 3] = Tile.FirePit;
 
             Mouse = new Point(0, 0);
+
+            Lived = 0;
+            CostOfLiving = costOfLiving;
         }
 
         public CheeseState(Tile[,] grid, Point mouse)
         {
             Grid = Copy(grid);
             Mouse = mouse;
+            Lived++;
         }
 
         public override bool Equals(object obj)

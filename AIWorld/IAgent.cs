@@ -354,7 +354,7 @@ namespace AIWorld
 
         public int Cost { get; set; }
 
-        public List<T> Visited => null;
+        public List<T> Visited { get; set; }
 
         public IFrontier<T> Frontier => null;
 
@@ -362,22 +362,22 @@ namespace AIWorld
 
         (T state, Akshun<T> action) prev;
 
-        Dictionary<(T state, Akshun<T> action), float> Model;
+        Dictionary<(T state, Akshun<T> action), (float score, float bestScore)> Model;
 
         Random random;
 
         public float Epsilon;
         public float LearningRate;
 
-        float BestScore = 0;
 
         public QAgent(T start, float epsilon, float learningRate)
         {
             CurrentGameState = start;
-            Model = new Dictionary<(T state, Akshun<T> action), float>();
+            Model = new Dictionary<(T state, Akshun<T> action), (float score, float bestScore)>();
             Epsilon = epsilon;
             random = new Random();
             LearningRate = learningRate;
+            Visited = new List<T>();
         }
 
         public Akshun<T> Move(List<Akshun<T>> actions)
@@ -387,16 +387,18 @@ namespace AIWorld
                 //record result of prev move in Model
                 if (Model.ContainsKey(prev))
                 {
-                    Model[prev] = (Model[prev] * (1-LearningRate)) + (LearningRate * (CurrentGameState.Score + BestScore/*maybe with inflation*/));
+                    Model[prev] = ((Model[prev].score * (1 - LearningRate)) + (LearningRate * (CurrentGameState.Score + (Model[prev].bestScore < CurrentGameState.Score ? CurrentGameState.Score : Model[prev].bestScore)/*maybe with inflation*/)), Model[prev].bestScore);
                 }
-
-                //backprop to update best score of prev states
+                else
+                {
+                    Model.Add(prev, (CurrentGameState.Score, CurrentGameState.Score));
+                }
             }
 
 
             //do move
             double randy = random.NextDouble();
-            if (randy < Epsilon)
+            if (randy < Epsilon || prev.Equals(default))
             {
                 //add random move to model
                 //random move
@@ -405,8 +407,11 @@ namespace AIWorld
             else
             {
                 //best move
-                prev = (CurrentGameState, actions.Where(y => Model[(CurrentGameState, y)].Equals(actions.Max(x => Model[(CurrentGameState, x)]))).First());
+                prev = (CurrentGameState, actions.Where(y => Model.ContainsKey((CurrentGameState, y))
+                                                          && Model[(CurrentGameState, y)]
+                                                          .Equals(actions.Max(x => Model[(CurrentGameState, x)]))).First());
             }
+            Visited.Add(CurrentGameState);
             return prev.action;
         }
     }
