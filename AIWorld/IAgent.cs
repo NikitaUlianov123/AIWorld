@@ -398,7 +398,7 @@ namespace AIWorld
 
             //do move
             double randy = random.NextDouble();
-            if (randy < Epsilon || prev.Equals(default))
+            if (randy < Epsilon || prev.Equals(default) || CurrentGameState.IsTerminal)
             {
                 //add random move to model
                 //random move
@@ -407,9 +407,25 @@ namespace AIWorld
             else
             {
                 //best move
-                prev = (CurrentGameState, actions.Where(y => Model.ContainsKey((CurrentGameState, y))
-                                                          && Model[(CurrentGameState, y)]
-                                                          .Equals(actions.Max(x => Model[(CurrentGameState, x)]))).First());
+
+                Akshun<T> best = default;
+                foreach (var action in Model.Where(x => x.Key.state.Equals(CurrentGameState)))
+                {
+                    if (best.Equals(default) || action.Value.score > Model[(CurrentGameState, best)].score)
+                    {
+                        best = action.Key.action;
+                    }
+                }
+
+                if (best.Equals(default))//current state is not in model
+                {
+                    //random move
+                    prev = (CurrentGameState, actions[random.Next(actions.Count)]);
+                }
+                else
+                {
+                    prev = (CurrentGameState, best);
+                }
             }
             Visited.Add(CurrentGameState);
             return prev.action;

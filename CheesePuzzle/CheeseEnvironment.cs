@@ -14,6 +14,8 @@ namespace CheesePuzzle
 
         Random randy = new Random();
 
+        CheeseState StartState = new CheeseState(-1);
+
         public List<Akshun<CheeseState>> GetActions(CheeseState State)
         {
             List<Akshun<CheeseState>> results = new List<Akshun<CheeseState>>();
@@ -47,6 +49,8 @@ namespace CheesePuzzle
 
         public CheeseState MakeMove(Akshun<CheeseState> move, CheeseState currentState)
         {
+            if (currentState.IsTerminal) return StartState;
+
             var actions = GetActions(currentState);
             if (actions.Count() > 0)
             {
