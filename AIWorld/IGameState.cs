@@ -25,8 +25,10 @@ namespace AIWorld
             Results = results;
         }
 
-        public override bool Equals([NotNullWhen(true)] object? obj)
+        public override bool Equals(object? obj)
         {
+            if(obj == null) return Start == null && Results == null;
+
             if (obj.GetType() != typeof(Akshun<T>)) return false;
 
             var other = (Akshun<T>)obj;

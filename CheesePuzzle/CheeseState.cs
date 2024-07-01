@@ -22,7 +22,7 @@ namespace CheesePuzzle
         {
             get
             {
-                return (Mouse.X < 0 || Mouse.X > Grid.GetLength(1) || Mouse.Y < 0 || Mouse.Y > Grid.GetLength(0)) || Grid[Mouse.Y, Mouse.X] != Tile.Empty;
+                return (Mouse.X < 0 || Mouse.X >= Grid.GetLength(1) || Mouse.Y < 0 || Mouse.Y >= Grid.GetLength(0)) || Grid[Mouse.Y, Mouse.X] != Tile.Empty;
             }
         }
 
@@ -33,19 +33,26 @@ namespace CheesePuzzle
                 int reward = 0;
                 if (IsTerminal)
                 {
-                    switch (Grid[Mouse.Y, Mouse.X])
-                    { 
-                        case Tile.Wall:
-                            reward = 0;
-                            break;
+                    if (Mouse.X < 0 || Mouse.X >= Grid.GetLength(1) || Mouse.Y < 0 || Mouse.Y >= Grid.GetLength(0))//Out of bounds
+                    {
+                        reward = -1000;
+                    }
+                    else
+                    {
+                        switch (Grid[Mouse.Y, Mouse.X])
+                        {
+                            case Tile.Wall:
+                                reward = 0;
+                                break;
 
-                        case Tile.Cheese:
-                            reward = 1000;
-                            break;
+                            case Tile.Cheese:
+                                reward = 1000;
+                                break;
 
-                        case Tile.FirePit:
-                            reward = -1000;
-                            break;
+                            case Tile.FirePit:
+                                reward = -1000;
+                                break;
+                        }
                     }
                 }
                 return reward + (Lived * CostOfLiving);
@@ -81,7 +88,7 @@ namespace CheesePuzzle
 
         public override bool Equals(object obj)
         {
-            if (obj.GetType() != typeof(CheeseState)) return false;
+            if (obj == null || obj.GetType() != typeof(CheeseState)) return false;
 
             CheeseState other = obj as CheeseState;
 

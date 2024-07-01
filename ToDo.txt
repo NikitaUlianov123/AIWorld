@@ -1,8 +1,3 @@
-Finish cheese game
-
-Make Q learning
-do cheese game with Q learning
-
 redo everything to use sensors instead of gameStates
 agents should take in a function that determines score
 
