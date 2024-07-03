@@ -1,6 +1,8 @@
 redo everything to use sensors instead of gameStates
 agents should take in a function that determines score
 
+Fix q value visualization/maybe Debug Q learning
+
 Make MDP
 do cheese game with MDP
 

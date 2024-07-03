@@ -35,6 +35,7 @@
             EpsilonLabel = new Label();
             DelayLabel = new Label();
             DelaySlider = new TrackBar();
+            QBox = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)LearningRateSlider).BeginInit();
             ((System.ComponentModel.ISupportInitialize)EpsilonSlider).BeginInit();
             ((System.ComponentModel.ISupportInitialize)DelaySlider).BeginInit();
@@ -45,7 +46,7 @@
             mono1.Location = new Point(12, 12);
             mono1.MouseHoverUpdatesOnly = false;
             mono1.Name = "mono1";
-            mono1.Size = new Size(776, 710);
+            mono1.Size = new Size(776, 776);
             mono1.TabIndex = 0;
             mono1.Text = "mono1";
             // 
@@ -55,6 +56,7 @@
             LearningRateSlider.Name = "LearningRateSlider";
             LearningRateSlider.Size = new Size(304, 69);
             LearningRateSlider.TabIndex = 2;
+            LearningRateSlider.Value = 4;
             LearningRateSlider.Scroll += LearningRateSlider_Scroll;
             // 
             // EpsilonSlider
@@ -63,6 +65,7 @@
             EpsilonSlider.Name = "EpsilonSlider";
             EpsilonSlider.Size = new Size(304, 69);
             EpsilonSlider.TabIndex = 3;
+            EpsilonSlider.Value = 5;
             EpsilonSlider.Scroll += EpsilonSlider_Scroll;
             // 
             // LearningRateLabel
@@ -100,11 +103,23 @@
             DelaySlider.TabIndex = 7;
             DelaySlider.Scroll += DelaySlider_Scroll;
             // 
+            // QBox
+            // 
+            QBox.AutoSize = true;
+            QBox.Location = new Point(1122, 12);
+            QBox.Name = "QBox";
+            QBox.Size = new Size(101, 29);
+            QBox.TabIndex = 8;
+            QBox.Text = "Show Q";
+            QBox.UseVisualStyleBackColor = true;
+            QBox.CheckedChanged += QBox_CheckedChanged;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1255, 734);
+            ClientSize = new Size(1255, 801);
+            Controls.Add(QBox);
             Controls.Add(DelaySlider);
             Controls.Add(DelayLabel);
             Controls.Add(EpsilonLabel);
@@ -130,5 +145,6 @@
         private Label EpsilonLabel;
         private Label DelayLabel;
         private TrackBar DelaySlider;
+        private CheckBox QBox;
     }
 }

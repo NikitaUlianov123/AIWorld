@@ -5,7 +5,8 @@ namespace CheesePuzzle
         public Form1()
         {
             InitializeComponent();
-
+            LearningRateSlider.Value = 1;
+            EpsilonSlider.Value = 3;
         }
 
         private void LearningRateSlider_Scroll(object sender, EventArgs e)
@@ -27,6 +28,11 @@ namespace CheesePuzzle
             var Slider = (TrackBar)sender;
 
             mono1.delay = TimeSpan.FromMilliseconds(Slider.Value * 100);
+        }
+
+        private void QBox_CheckedChanged(object sender, EventArgs e)
+        {
+            mono1.ShowQ = ((CheckBox)sender).Checked;
         }
     }
 }
