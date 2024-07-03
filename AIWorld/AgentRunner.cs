@@ -6,16 +6,17 @@ using System.Threading.Tasks;
 
 namespace AIWorld
 {
-    public class AgentRunner<T> where T : IGameState
+    public class AgentRunner<TState, TSensors> where TState : IAgentState
+                                               where TSensors : ISensorReading
     {
-        public IEnvironment<T> environment;
+        public IEnvironment<TState, TSensors> environment;
         
-        public List<IAgent<T>> agents;
+        public List<IAgent<TSensors>> agents;
 
-        public AgentRunner(IEnvironment<T> env, IAgent<T> agent)
+        public AgentRunner(IEnvironment<TState, TSensors> env, IAgent<TSensors> agent)
         {
             environment = env;
-            agents = new List<IAgent<T>>();
+            agents = new List<IAgent<TSensors>>();
             agents.Add(agent);
         }
 
@@ -29,7 +30,7 @@ namespace AIWorld
             }
         }
 
-        public void PlayerTurn(Akshun<T> move)
+        public void PlayerTurn(Akshun<TSensors> move)
         { 
             var newState = environment.MakeMove(move, agents[0].CurrentGameState);
             for (int i = 0; i < agents.Count; i++)

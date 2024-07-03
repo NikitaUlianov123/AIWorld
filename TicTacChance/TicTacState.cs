@@ -8,7 +8,7 @@ using AIWorld;
 
 namespace TicTacChance
 {
-    public class TicTacState : IGameState
+    public class TicTacState : IAgentState
     {
         public enum State
         {

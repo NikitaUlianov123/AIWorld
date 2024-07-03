@@ -26,7 +26,7 @@ namespace _8PuzzleGame
         }
     }
 
-    public class GameState : IGameState
+    public class GameState : IAgentState
     {
         enum Directions { Up, Down, Left, Right }
 

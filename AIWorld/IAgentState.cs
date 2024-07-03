@@ -7,22 +7,33 @@ using System.Threading.Tasks;
 
 namespace AIWorld
 {
-    public interface IGameState
+    public interface IAgentState
     {
         bool IsTerminal { get; }
 
         float Score { get; set; }
     }
 
-    public struct Akshun<T> where T : IGameState
+    public interface ISensorReading
+    {
+        byte[] values { get; set; }
+
+        bool IsTerminal { get; }
+
+        float Score { get; }
+    }
+
+    public struct Akshun<T> where T : ISensorReading
     {
         public T Start;
         public List<Successor<T>> Results;
+        public string Name;
 
-        public Akshun(T start, List<Successor<T>> results)
+        public Akshun(T start, List<Successor<T>> results, string name)
         {
             Start = start;
             Results = results;
+            Name = name;
         }
 
         public override bool Equals(object? obj)
@@ -48,7 +59,7 @@ namespace AIWorld
         }
     }
 
-    public struct Successor<T> where T : IGameState
+    public struct Successor<T> where T : ISensorReading
     {
         public T State;
         public int Cost;

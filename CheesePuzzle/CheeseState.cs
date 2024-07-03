@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CheesePuzzle
 {
-    public class CheeseState : IGameState
+    public class CheeseState : IAgentState
     {
         public enum Tile
         { 
@@ -42,7 +42,7 @@ namespace CheesePuzzle
                         switch (Grid[Mouse.Y, Mouse.X])
                         {
                             case Tile.Wall:
-                                reward = 0;
+                                reward = -15;
                                 break;
 
                             case Tile.Cheese:
@@ -55,7 +55,7 @@ namespace CheesePuzzle
                         }
                     }
                 }
-                return reward + (Lived * CostOfLiving);
+                return reward + (/*Lived * */CostOfLiving);
             }
             set {}
         }
@@ -63,27 +63,38 @@ namespace CheesePuzzle
         public Tile[,] Grid;
         public Point Mouse;
 
-        int Lived;
-        int CostOfLiving;
+        public int Lived;
+        public int CostOfLiving;
 
         public CheeseState(int costOfLiving)
         {
-            Grid = new Tile[3, 4];
-            Grid[1, 1] = Tile.Wall;
-            Grid[0, 3] = Tile.Cheese;
-            Grid[1, 3] = Tile.FirePit;
+            //Grid = new Tile[6, 6];
+            //Grid[4, 3] = Tile.Cheese;
+
+            //Mouse = new Point(1, 1);
 
             Mouse = new Point(0, 0);
+            Grid = new Tile[10, 10];
+            Grid[4, 7] = Tile.Cheese;
+            Grid[4, 0] = Tile.FirePit;
+            Grid[4, 1] = Tile.FirePit;
+            Grid[4, 2] = Tile.FirePit;
+            Grid[4, 3] = Tile.FirePit;
+            Grid[4, 4] = Tile.FirePit;
+            Grid[4, 5] = Tile.FirePit;
+
+
 
             Lived = 0;
             CostOfLiving = costOfLiving;
         }
 
-        public CheeseState(Tile[,] grid, Point mouse)
+        public CheeseState(CheeseState prev, Point mouse)
         {
-            Grid = Copy(grid);
+            Grid = Copy(prev.Grid);
             Mouse = mouse;
-            Lived++;
+            Lived = prev.Lived + 1;
+            CostOfLiving = prev.CostOfLiving;
         }
 
         public override bool Equals(object obj)

@@ -9,7 +9,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace AIWorld
 {
-    public interface IAgent<T> where T : IGameState
+    public interface IAgent<T> where T : ISensorReading
     {
         int Cost { get; }
 
@@ -20,9 +20,11 @@ namespace AIWorld
         T CurrentGameState { get; set; }
 
         Akshun<T> Move(List<Akshun<T>> actions);
+
+
     }
 
-    public class BFSAgent<T> : IAgent<T> where T : IGameState
+    public class BFSAgent<T> : IAgent<T> where T : ISensorReading
     {
         public int Cost { get; private set; }
 
@@ -58,7 +60,7 @@ namespace AIWorld
         }
     }
 
-    public class DFSAgent<T> : IAgent<T> where T : IGameState
+    public class DFSAgent<T> : IAgent<T> where T : ISensorReading
     {
         public int Cost { get; private set; }
 
@@ -94,7 +96,7 @@ namespace AIWorld
         }
     }
 
-    public class UCSAgent<T> : IAgent<T> where T : IGameState
+    public class UCSAgent<T> : IAgent<T> where T : ISensorReading
     {
         public int Cost { get; private set; }
 
@@ -130,7 +132,7 @@ namespace AIWorld
         }
     }
 
-    public class AStarAgent<T> : IAgent<T> where T : IGameState
+    public class AStarAgent<T> : IAgent<T> where T : ISensorReading
     {
         public int Cost { get; private set; }
 
@@ -186,7 +188,7 @@ namespace AIWorld
         }
     }
 
-    public class BogoAgent<T> : IAgent<T> where T : IGameState
+    public class BogoAgent<T> : IAgent<T> where T : ISensorReading
     {
         public int Cost { get; private set; }
 
@@ -225,12 +227,12 @@ namespace AIWorld
         }
     }
 
-    public interface IFullInfoAgent<T> : IAgent<T> where T : IGameState
+    public interface IFullInfoAgent<T> : IAgent<T> where T : ISensorReading
     {
         Func<T, List<Akshun<T>>> GetActions { get; set; }
     }
 
-    public class ExpectiMax<T> : IFullInfoAgent<T> where T : IGameState
+    public class ExpectiMax<T> : IFullInfoAgent<T> where T : ISensorReading
     {
         class Node
         {
@@ -268,7 +270,7 @@ namespace AIWorld
                                 }
                             }
                         }
-                        State.Score = Children.Average(x => x.node.Score * x.chance);
+                        Score = Children.Average(x => x.node.Score * x.chance);
                     }
                     Score = State.Score;
                 }
@@ -308,7 +310,7 @@ namespace AIWorld
         }
     }
 
-    public class MarkovAgent<T> : IFullInfoAgent<T> where T : IGameState
+    public class MarkovAgent<T> : IFullInfoAgent<T> where T : ISensorReading
     {
         public Func<T, List<Akshun<T>>> GetActions { get; set; }
 
@@ -349,12 +351,14 @@ namespace AIWorld
         }
     }
 
-    public class QAgent<T> : IAgent<T> where T : IGameState
+    public class QAgent<T> : IAgent<T> where T : ISensorReading
     {
 
         public int Cost { get; set; }
 
-        public List<T> Visited { get; set; }
+        public List<T> Visited { get => visited.ToList(); set => visited = value.ToHashSet(); }
+
+        HashSet<T> visited;
 
         public IFrontier<T> Frontier => null;
 
@@ -362,7 +366,7 @@ namespace AIWorld
 
         (T state, Akshun<T> action) prev;
 
-        Dictionary<(T state, Akshun<T> action), (float score, float bestScore)> Model;
+        public Dictionary<(T state, Akshun<T> action), (float score, float bestScore)> Model;
 
         Random random;
 
@@ -377,7 +381,7 @@ namespace AIWorld
             Epsilon = epsilon;
             random = new Random();
             LearningRate = learningRate;
-            Visited = new List<T>();
+            visited = new HashSet<T>();
         }
 
         public Akshun<T> Move(List<Akshun<T>> actions)
@@ -387,7 +391,14 @@ namespace AIWorld
                 //record result of prev move in Model
                 if (Model.ContainsKey(prev))
                 {
-                    Model[prev] = ((Model[prev].score * (1 - LearningRate)) + (LearningRate * (CurrentGameState.Score + (Model[prev].bestScore < CurrentGameState.Score ? CurrentGameState.Score : Model[prev].bestScore)/*maybe with inflation*/)), Model[prev].bestScore);
+                    //Best score from current state:
+                    float best = float.MinValue;
+                    foreach (var action in Model.Where(x => x.Key.state.Equals(CurrentGameState)))
+                    {
+                        best = Math.Max(best, Model[action.Key].score);
+                    }
+
+                    Model[prev] = ((Model[prev].score * (1 - LearningRate)) + (LearningRate * (CurrentGameState.Score + best/*maybe with inflation*/)), Model[prev].bestScore);
                 }
                 else
                 {
@@ -427,7 +438,7 @@ namespace AIWorld
                     prev = (CurrentGameState, best);
                 }
             }
-            Visited.Add(CurrentGameState);
+            visited.Add(CurrentGameState);
             return prev.action;
         }
     }

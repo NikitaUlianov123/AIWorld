@@ -33,6 +33,8 @@ namespace CheesePuzzle
             }
         }
 
+        public bool ShowQ = false;
+
         public AgentRunner<CheeseState> Runner;
         public TimeSpan delay;
         TimeSpan elapsed;
@@ -41,9 +43,9 @@ namespace CheesePuzzle
         {
             delay = TimeSpan.Zero;
             elapsed = TimeSpan.Zero;
-            Runner = new AgentRunner<CheeseState>(new CheeseEnvironment(), new QAgent<CheeseState>(new CheeseState(-1), 0.4f, 0.5f));
+            Runner = new AgentRunner<CheeseState>(new CheeseEnvironment(), new QAgent<CheeseState>(new CheeseState(-1), 0.3f, 0.1f));
 
-            for (int i = 0; i < 10000; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 Runner.DoTurn();
             }
@@ -67,6 +69,9 @@ namespace CheesePuzzle
 
             int tileSize = Editor.GraphicsDevice.Viewport.Width / Runner.agents[0].CurrentGameState.Grid.GetLength(1);
             Microsoft.Xna.Framework.Color color = Microsoft.Xna.Framework.Color.White;
+
+            var QValues = Normalize(GetQValues(), 0, 255);
+
             for (int x = 0; x < Runner.agents[0].CurrentGameState.Grid.GetLength(1); x++)
             {
                 for (int y = 0; y < Runner.agents[0].CurrentGameState.Grid.GetLength(0); y++)
@@ -74,7 +79,7 @@ namespace CheesePuzzle
                     switch (Runner.agents[0].CurrentGameState.Grid[y, x])
                     {
                         case CheeseState.Tile.Wall:
-                            color = Microsoft.Xna.Framework.Color.Black; 
+                            color = Microsoft.Xna.Framework.Color.Black;
                             break;
 
                         case CheeseState.Tile.Cheese:
@@ -86,7 +91,14 @@ namespace CheesePuzzle
                             break;
 
                         default:
-                            color = Microsoft.Xna.Framework.Color.White;
+                            if (ShowQ)
+                            {
+                                color = new Microsoft.Xna.Framework.Color(Microsoft.Xna.Framework.Color.Black, 255 - QValues[y, x]);
+                            }
+                            else
+                            {
+                                color = Microsoft.Xna.Framework.Color.White;
+                            }
                             break;
                     }
 
@@ -96,9 +108,68 @@ namespace CheesePuzzle
 
                 }
             }
-            Editor.spriteBatch.FillRectangle(new Microsoft.Xna.Framework.Rectangle(Runner.agents[0].CurrentGameState.Mouse.X * tileSize + 10, Runner.agents[0].CurrentGameState.Mouse.Y * tileSize + 10, tileSize - 20, tileSize - 20), Microsoft.Xna.Framework.Color.Gray);
-            
+            //Mouse
+            Editor.spriteBatch.FillRectangle(new Microsoft.Xna.Framework.Rectangle(Runner.agents[0].CurrentGameState.Mouse.X * tileSize + 10, Runner.agents[0].CurrentGameState.Mouse.Y * tileSize + 10, tileSize - 20, tileSize - 20), Microsoft.Xna.Framework.Color.Sienna);
+
             Editor.spriteBatch.End();
+        }
+
+
+        public int[,] GetQValues()
+        {
+            int[,] values = new int[Runner.agents[0].CurrentGameState.Grid.GetLength(0), Runner.agents[0].CurrentGameState.Grid.GetLength(1)];
+
+            var Model = ((QAgent<CheeseState>)(Runner.agents[0])).Model;
+
+            for (int y = 0; y < values.GetLength(0); y++)
+            {
+                for (int x = 0; x < values.GetLength(1); x++)
+                {
+                    //Moves that result in this state:
+                    var Moves = new List<Akshun<CheeseState>>();
+                    foreach (var action in Model)
+                    {
+                        if (action.Key.action.Results[0].State.Mouse.X == x && action.Key.action.Results[0].State.Mouse.Y == y)
+                        {
+                            values[y, x] += (int)(action.Value.score);
+                        }
+                    }
+                }
+            }
+
+            return values;
+        }
+
+        public int[,] Normalize(int[,] input, int nMin, int nMax)
+        {
+            int min = int.MaxValue;
+            int max = int.MinValue;
+
+            for (int y = 0; y < input.GetLength(0); y++)
+            {
+                for (int x = 0; x < input.GetLength(1); x++)
+                {
+                    if (input[y, x] < min && input[y, x] != int.MinValue) min = input[y, x];
+
+                    if (input[y, x] > max && input[y, x] != int.MaxValue) max = input[y, x];
+                }
+            }
+
+            int[,] result = new int[input.GetLength(0), input.GetLength(1)];
+            for (int y = 0; y < input.GetLength(0); y++)
+            {
+                for (int x = 0; x < input.GetLength(1); x++)
+                {
+                    if (input[y, x] == int.MinValue || input[y, x] == int.MaxValue) result[y, x] = input[y, x];
+
+                    else
+                    {
+                        result[y, x] = (((input[y, x] - min) / (max - min)) * (nMax - nMin)) + nMin;
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }
