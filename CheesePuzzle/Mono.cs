@@ -19,7 +19,7 @@ namespace CheesePuzzle
         {
             set
             {
-                var agent = (QAgent<CheeseState>)(Runner.agents[0]);
+                var agent = (QAgent<MouseSensors>)(Runner.agents[0]);
                 agent.LearningRate = value;
             }
         }
@@ -28,14 +28,14 @@ namespace CheesePuzzle
         {
             set
             {
-                var agent = (QAgent<CheeseState>)(Runner.agents[0]);
+                var agent = (QAgent<MouseSensors>)(Runner.agents[0]);
                 agent.Epsilon = value;
             }
         }
 
         public bool ShowQ = false;
 
-        public AgentRunner<CheeseState> Runner;
+        public AgentRunner<CheeseState, MouseSensors> Runner;
         public TimeSpan delay;
         TimeSpan elapsed;
 
@@ -43,7 +43,7 @@ namespace CheesePuzzle
         {
             delay = TimeSpan.Zero;
             elapsed = TimeSpan.Zero;
-            Runner = new AgentRunner<CheeseState>(new CheeseEnvironment(), new QAgent<CheeseState>(new CheeseState(-1), 0.3f, 0.1f));
+            Runner = new AgentRunner<CheeseState, MouseSensors>(new CheeseEnvironment(), new QAgent<MouseSensors>(new MouseSensors(new CheeseState(-1)), 0.3f, 0.1f));
 
             for (int i = 0; i < 1000; i++)
             {
@@ -67,16 +67,16 @@ namespace CheesePuzzle
 
             Editor.spriteBatch.Begin();
 
-            int tileSize = Editor.GraphicsDevice.Viewport.Width / Runner.agents[0].CurrentGameState.Grid.GetLength(1);
+            int tileSize = Editor.GraphicsDevice.Viewport.Width / Runner.environment.AgentInfo[0].Grid.GetLength(1);
             Microsoft.Xna.Framework.Color color = Microsoft.Xna.Framework.Color.White;
 
             var QValues = Normalize(GetQValues(), 0, 255);
 
-            for (int x = 0; x < Runner.agents[0].CurrentGameState.Grid.GetLength(1); x++)
+            for (int x = 0; x < Runner.environment.AgentInfo[0].Grid.GetLength(1); x++)
             {
-                for (int y = 0; y < Runner.agents[0].CurrentGameState.Grid.GetLength(0); y++)
+                for (int y = 0; y < Runner.environment.AgentInfo[0].Grid.GetLength(0); y++)
                 {
-                    switch (Runner.agents[0].CurrentGameState.Grid[y, x])
+                    switch (Runner.environment.AgentInfo[0].Grid[y, x])
                     {
                         case CheeseState.Tile.Wall:
                             color = Microsoft.Xna.Framework.Color.Black;
@@ -109,7 +109,7 @@ namespace CheesePuzzle
                 }
             }
             //Mouse
-            Editor.spriteBatch.FillRectangle(new Microsoft.Xna.Framework.Rectangle(Runner.agents[0].CurrentGameState.Mouse.X * tileSize + 10, Runner.agents[0].CurrentGameState.Mouse.Y * tileSize + 10, tileSize - 20, tileSize - 20), Microsoft.Xna.Framework.Color.Sienna);
+            Editor.spriteBatch.FillRectangle(new Microsoft.Xna.Framework.Rectangle(Runner.environment.AgentInfo[0].Mouse.X * tileSize + 10, Runner.environment.AgentInfo[0].Mouse.Y * tileSize + 10, tileSize - 20, tileSize - 20), Microsoft.Xna.Framework.Color.Sienna);
 
             Editor.spriteBatch.End();
         }
@@ -117,19 +117,19 @@ namespace CheesePuzzle
 
         public int[,] GetQValues()
         {
-            int[,] values = new int[Runner.agents[0].CurrentGameState.Grid.GetLength(0), Runner.agents[0].CurrentGameState.Grid.GetLength(1)];
+            int[,] values = new int[Runner.environment.AgentInfo[0].Grid.GetLength(0), Runner.environment.AgentInfo[0].Grid.GetLength(1)];
 
-            var Model = ((QAgent<CheeseState>)(Runner.agents[0])).Model;
+            var Model = ((QAgent<MouseSensors>)(Runner.agents[0])).Model;
 
             for (int y = 0; y < values.GetLength(0); y++)
             {
                 for (int x = 0; x < values.GetLength(1); x++)
                 {
                     //Moves that result in this state:
-                    var Moves = new List<Akshun<CheeseState>>();
+                    var Moves = new List<Akshun<MouseSensors>>();
                     foreach (var action in Model)
                     {
-                        if (action.Key.action.Results[0].State.Mouse.X == x && action.Key.action.Results[0].State.Mouse.Y == y)
+                        if (action.Key.action.Results[0].State.values[0] == x && action.Key.action.Results[0].State.values[1] == y)
                         {
                             values[y, x] += (int)(action.Value.score);
                         }

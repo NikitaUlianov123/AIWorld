@@ -11,6 +11,8 @@ namespace AIWorld
     {
         Dictionary<int, TState> AgentInfo { get; }
 
+        void AddAgent(int ID, TState state);
+
         List<Akshun<TSensors>> GetActions(int agentID);
 
         TSensors MakeMove(Akshun<TSensors> move, int agentID);

@@ -66,6 +66,24 @@ namespace CheesePuzzle
         public int Lived;
         public int CostOfLiving;
 
+        public CheeseState()
+        {
+            Mouse = new Point(0, 0);
+            Grid = new Tile[10, 10];
+            Grid[4, 7] = Tile.Cheese;
+            Grid[4, 0] = Tile.FirePit;
+            Grid[4, 1] = Tile.FirePit;
+            Grid[4, 2] = Tile.FirePit;
+            Grid[4, 3] = Tile.FirePit;
+            Grid[4, 4] = Tile.FirePit;
+            Grid[4, 5] = Tile.FirePit;
+
+
+
+            Lived = 0;
+            CostOfLiving = -1;
+        }
+
         public CheeseState(int costOfLiving)
         {
             //Grid = new Tile[6, 6];

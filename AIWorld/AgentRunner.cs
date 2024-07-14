@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AIWorld
 {
-    public class AgentRunner<TState, TSensors> where TState : IAgentState
+    public class AgentRunner<TState, TSensors> where TState : IAgentState, new()
                                                where TSensors : ISensorReading
     {
         public IEnvironment<TState, TSensors> environment;
@@ -18,21 +18,22 @@ namespace AIWorld
             environment = env;
             agents = new List<IAgent<TSensors>>();
             agents.Add(agent);
+            env.AddAgent(0, new TState());
         }
 
         public void DoTurn()
         { 
             for (int i = 0;i < agents.Count;i++)
             {
-                var successors = environment.GetActions(agents[i].CurrentGameState);
+                var successors = environment.GetActions(i);
                 var move = agents[i].Move(successors);
-                agents[i].CurrentGameState = environment.MakeMove(move, agents[i].CurrentGameState);
+                agents[i].CurrentGameState = environment.MakeMove(move, i);
             }
         }
 
         public void PlayerTurn(Akshun<TSensors> move)
         { 
-            var newState = environment.MakeMove(move, agents[0].CurrentGameState);
+            var newState = environment.MakeMove(move, 0);
             for (int i = 0; i < agents.Count; i++)
             {
                 agents[i].CurrentGameState = newState;
