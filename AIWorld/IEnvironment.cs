@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 
 namespace AIWorld
 {
-    public interface IEnvironment<TState, TSensors> where TState : IAgentState
-                                                    where TSensors : ISensorReading
+    public interface IEnvironment<TSensors> where TSensors : ISensorReading
     {
-        Dictionary<int, TState> AgentInfo { get; }
-
-        void AddAgent(int ID, TState state);
+        void AddAgent(int ID, TSensors state);
 
         List<Akshun<TSensors>> GetActions(int agentID);
+
+        List<Akshun<TSensors>> GetActions(TSensors state);
 
         TSensors MakeMove(Akshun<TSensors> move, int agentID);
     }

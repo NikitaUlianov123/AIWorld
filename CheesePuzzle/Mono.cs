@@ -35,7 +35,7 @@ namespace CheesePuzzle
 
         public bool ShowQ = false;
 
-        public AgentRunner<CheeseState, MouseSensors> Runner;
+        public AgentRunner<MouseSensors> Runner;
         public TimeSpan delay;
         TimeSpan elapsed;
 
@@ -43,7 +43,7 @@ namespace CheesePuzzle
         {
             delay = TimeSpan.Zero;
             elapsed = TimeSpan.Zero;
-            Runner = new AgentRunner<CheeseState, MouseSensors>(new CheeseEnvironment(), new QAgent<MouseSensors>(new MouseSensors(new CheeseState(-1)), 0.3f, 0.1f));
+            Runner = new AgentRunner<MouseSensors>(new CheeseEnvironment(), new QAgent<MouseSensors>(new MouseSensors(new CheeseState(-1)), 0.3f, 0.1f));
 
             for (int i = 0; i < 1000; i++)
             {
@@ -67,16 +67,16 @@ namespace CheesePuzzle
 
             Editor.spriteBatch.Begin();
 
-            int tileSize = Editor.GraphicsDevice.Viewport.Width / Runner.environment.AgentInfo[0].Grid.GetLength(1);
+            int tileSize = Editor.GraphicsDevice.Viewport.Width / ((CheeseEnvironment)(Runner.environment)).AgentInfo[0].Grid.GetLength(1);
             Microsoft.Xna.Framework.Color color = Microsoft.Xna.Framework.Color.White;
 
             var QValues = Normalize(GetQValues(), 0, 255);
 
-            for (int x = 0; x < Runner.environment.AgentInfo[0].Grid.GetLength(1); x++)
+            for (int x = 0; x < ((CheeseEnvironment)(Runner.environment)).AgentInfo[0].Grid.GetLength(1); x++)
             {
-                for (int y = 0; y < Runner.environment.AgentInfo[0].Grid.GetLength(0); y++)
+                for (int y = 0; y < ((CheeseEnvironment)(Runner.environment)).AgentInfo[0].Grid.GetLength(0); y++)
                 {
-                    switch (Runner.environment.AgentInfo[0].Grid[y, x])
+                    switch (((CheeseEnvironment)(Runner.environment)).AgentInfo[0].Grid[y, x])
                     {
                         case CheeseState.Tile.Wall:
                             color = Microsoft.Xna.Framework.Color.Black;
@@ -109,7 +109,7 @@ namespace CheesePuzzle
                 }
             }
             //Mouse
-            Editor.spriteBatch.FillRectangle(new Microsoft.Xna.Framework.Rectangle(Runner.environment.AgentInfo[0].Mouse.X * tileSize + 10, Runner.environment.AgentInfo[0].Mouse.Y * tileSize + 10, tileSize - 20, tileSize - 20), Microsoft.Xna.Framework.Color.Sienna);
+            Editor.spriteBatch.FillRectangle(new Microsoft.Xna.Framework.Rectangle(((CheeseEnvironment)(Runner.environment)).AgentInfo[0].Mouse.X * tileSize + 10, ((CheeseEnvironment)(Runner.environment)).AgentInfo[0].Mouse.Y * tileSize + 10, tileSize - 20, tileSize - 20), Microsoft.Xna.Framework.Color.Sienna);
 
             Editor.spriteBatch.End();
         }
@@ -117,7 +117,7 @@ namespace CheesePuzzle
 
         public int[,] GetQValues()
         {
-            int[,] values = new int[Runner.environment.AgentInfo[0].Grid.GetLength(0), Runner.environment.AgentInfo[0].Grid.GetLength(1)];
+            int[,] values = new int[((CheeseEnvironment)(Runner.environment)).AgentInfo[0].Grid.GetLength(0), ((CheeseEnvironment)(Runner.environment)).AgentInfo[0].Grid.GetLength(1)];
 
             var Model = ((QAgent<MouseSensors>)(Runner.agents[0])).Model;
 
@@ -156,6 +156,7 @@ namespace CheesePuzzle
             }
 
             int[,] result = new int[input.GetLength(0), input.GetLength(1)];
+            if (min == max) return result;
             for (int y = 0; y < input.GetLength(0); y++)
             {
                 for (int x = 0; x < input.GetLength(1); x++)

@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 
 namespace AIWorld
 {
-    public class AgentRunner<TState, TSensors> where TState : IAgentState, new()
-                                               where TSensors : ISensorReading
+    public class AgentRunner<TSensors> where TSensors : ISensorReading
     {
-        public IEnvironment<TState, TSensors> environment;
+        public IEnvironment<TSensors> environment;
         
         public List<IAgent<TSensors>> agents;
 
-        public AgentRunner(IEnvironment<TState, TSensors> env, IAgent<TSensors> agent)
+        public AgentRunner(IEnvironment<TSensors> env, IAgent<TSensors> agent)
         {
             environment = env;
             agents = new List<IAgent<TSensors>>();
@@ -38,6 +37,11 @@ namespace AIWorld
             {
                 agents[i].CurrentGameState = newState;
             }
+        }
+
+        public List<Akshun<TSensors>> GetActions(TSensors state)
+        {
+            return environment.
         }
     }
 }

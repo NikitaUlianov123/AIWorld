@@ -20,8 +20,6 @@ namespace AIWorld
         T CurrentGameState { get; set; }
 
         Akshun<T> Move(List<Akshun<T>> actions);
-
-
     }
 
     public class BFSAgent<T> : IAgent<T> where T : ISensorReading
@@ -353,7 +351,6 @@ namespace AIWorld
 
     public class QAgent<T> : IAgent<T> where T : ISensorReading
     {
-
         public int Cost { get; set; }
 
         public List<T> Visited { get => visited.ToList(); set => visited = value.ToHashSet(); }
