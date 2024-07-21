@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CheesePuzzle
 {
-    public class CheeseState : IAgentState
+    public class CheeseState
     {
         public enum Tile
         { 
@@ -67,21 +67,9 @@ namespace CheesePuzzle
         public int CostOfLiving;
 
         public CheeseState()
+            : this(-1)
         {
-            Mouse = new Point(0, 0);
-            Grid = new Tile[10, 10];
-            Grid[4, 7] = Tile.Cheese;
-            Grid[4, 0] = Tile.FirePit;
-            Grid[4, 1] = Tile.FirePit;
-            Grid[4, 2] = Tile.FirePit;
-            Grid[4, 3] = Tile.FirePit;
-            Grid[4, 4] = Tile.FirePit;
-            Grid[4, 5] = Tile.FirePit;
-
-
-
-            Lived = 0;
-            CostOfLiving = -1;
+            
         }
 
         public CheeseState(int costOfLiving)
@@ -93,7 +81,7 @@ namespace CheesePuzzle
 
             Mouse = new Point(0, 0);
             Grid = new Tile[10, 10];
-            Grid[4, 7] = Tile.Cheese;
+            Grid[2, 7] = Tile.Cheese;
             Grid[4, 0] = Tile.FirePit;
             Grid[4, 1] = Tile.FirePit;
             Grid[4, 2] = Tile.FirePit;

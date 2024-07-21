@@ -7,16 +7,9 @@ using System.Threading.Tasks;
 
 namespace AIWorld
 {
-    public interface IAgentState
-    {
-        bool IsTerminal { get; }
-
-        float Score { get; set; }
-    }
-
     public interface ISensorReading
     {
-        byte[] values { get; set; }
+        byte[] values { get; }
 
         bool IsTerminal { get; }
 

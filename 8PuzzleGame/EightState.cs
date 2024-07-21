@@ -10,23 +10,41 @@ using System.Threading.Tasks;
 
 namespace _8PuzzleGame
 {
-    public class EightPuzzle : IEnvironment<GameState>
+    public class EightPuzzle : IEnvironment<EightState>
     {
-        public GameState TargetState => new GameState();
+        public EightState TargetState => new EightState();
 
-        public List<Successor<GameState>> GetActions(GameState currentState)
+        public Dictionary<int, EightState> AgentInfo => agentInfo;
+        private Dictionary<int, EightState> agentInfo = new Dictionary<int, EightState>();
+
+        public void AddAgent(int ID, EightState state) => agentInfo.Add(ID, state);
+
+        public List<Akshun<EightState>> GetActions(int agentID)
         {
-            return currentState.GetNeighbors().Select(x => new Successor<GameState>(x, 1, 1f)).ToList();
+            var neighbors = agentInfo[agentID].GetNeighbors();
+            List<Akshun<EightState>> result = new List<Akshun<EightState>>();
+
+            foreach (var item in neighbors)
+            {
+                result.Add(new Akshun<EightState>(agentInfo[agentID], [new Successor<EightState>(item, 1, 1)], ""));
+            }
+
+            return result;
         }
 
-        public GameState MakeMove(GameState move, GameState currentState)
+        public List<Akshun<EightState>> GetActions(EightState state)
         {
-            if (GetActions(currentState).Where(x => x.State.Equals(move)).Count() > 0) return move;
+            throw new NotImplementedException();
+        }
+
+        public EightState MakeMove(Akshun<EightState> move, int agentID)
+        {
+            if (GetActions(agentID).Where(x => x.Equals(move)).Count() > 0) return move.Results[0].State;
             throw new InvalidOperationException("Cannot move to requested spot");
         }
     }
 
-    public class GameState : IAgentState
+    public class EightState : ISensorReading
     {
         enum Directions { Up, Down, Left, Right }
 
@@ -55,15 +73,30 @@ namespace _8PuzzleGame
         {
             get
             {
-                var solved = new GameState();
+                var solved = new EightState();
                 return value == solved.value;
             }
         }
 
-        public float Score { get => value; set => stupid = value; }
-        float stupid;
+        public float Score { get => value; }
+        public byte[] values
+        {
+            get
+            {
+                byte[,] result = new byte[Grid.GetLength(0), Grid.GetLength(1)];
+                for (int i = 0; i <= Grid.GetLength(0); i++)
+                {
+                    for (int j = 0; j < Grid.GetLength(1); j++)
+                    {
+                        result[i, j] = (byte)Grid[i, j];
+                    }
+                }
 
-        public GameState()
+                return result.Cast<byte>().Select(x => x).ToArray();
+            }
+        }
+
+        public EightState()
         {
             Grid = new int[3, 3];
 
@@ -77,12 +110,12 @@ namespace _8PuzzleGame
             Grid[2, 2] = 0;
         }
 
-        public GameState(int[,] grid)
+        public EightState(int[,] grid)
         {
             Grid = Copy(grid);
         }
 
-        private GameState(int[,] grid, Directions move)
+        private EightState(int[,] grid, Directions move)
         {
             Grid = Copy(grid);
             int Zero = FindZero();
@@ -110,24 +143,24 @@ namespace _8PuzzleGame
             }
         }
 
-        public List<GameState> GetNeighbors()
+        public List<EightState> GetNeighbors()
         {
-            List<GameState> result = new List<GameState>();
+            List<EightState> result = new List<EightState>();
             int Zero = FindZero();
 
-            if (Zero / 3 > 0) result.Add(new GameState(Grid, Directions.Up));
-            if (Zero / 3 < 2) result.Add(new GameState(Grid, Directions.Down));
-            if (Zero % 3 > 0) result.Add(new GameState(Grid, Directions.Left));
-            if (Zero % 3 < 2) result.Add(new GameState(Grid, Directions.Right));
+            if (Zero / 3 > 0) result.Add(new EightState(Grid, Directions.Up));
+            if (Zero / 3 < 2) result.Add(new EightState(Grid, Directions.Down));
+            if (Zero % 3 > 0) result.Add(new EightState(Grid, Directions.Left));
+            if (Zero % 3 < 2) result.Add(new EightState(Grid, Directions.Right));
 
             return result;
         }
 
         public override bool Equals(object obj)
         {
-            if (obj.GetType() != typeof(GameState)) return false;
+            if (obj.GetType() != typeof(EightState)) return false;
 
-            GameState other = obj as GameState;//idk, intelisense suggested it
+            EightState other = obj as EightState;//idk, intelisense suggested it
 
             for (int i = 0; i < other.Grid.GetLength(0); i++)
             {

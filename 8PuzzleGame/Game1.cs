@@ -22,7 +22,7 @@ namespace _8PuzzleGame
 
 
         int[,] startState;
-        AgentRunner<GameState> runner;
+        AgentRunner<EightState> runner;
 
         public Game1()
         {
@@ -46,7 +46,7 @@ namespace _8PuzzleGame
 
             var start = new EightPuzzle();
 
-            runner = new AgentRunner<GameState>(start, new ExpectiMax<GameState>(start.GetSuccessors,new GameState(startState)));
+            runner = new AgentRunner<EightState>(start, new ExpectiMax<EightState>(start.GetActions, new EightState(startState)));
 
             base.Initialize();
         }
