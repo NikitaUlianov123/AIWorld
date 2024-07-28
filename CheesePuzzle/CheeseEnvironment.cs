@@ -41,6 +41,7 @@ namespace CheesePuzzle
         private List<Akshun<MouseSensors>> GetActions(CheeseState state)
         {
             List<Akshun<MouseSensors>> results = new List<Akshun<MouseSensors>>();
+            var State = AgentInfo[ID];
             //Up
             results.Add(new Akshun<MouseSensors>(new MouseSensors(state),
                 [new Successor<MouseSensors>(new MouseSensors(new CheeseState(state, new Point(state.Mouse.X, state.Mouse.Y - 1))), 1, .8f),
@@ -101,6 +102,14 @@ namespace CheesePuzzle
             throw new InvalidOperationException("Cannot move to requested spot");
         }
 
+        public void AddAgent(int ID, MouseSensors state)
+        {
+            throw new NotImplementedException();
+        }
 
+        public List<Akshun<MouseSensors>> GetActions(MouseSensors state)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
