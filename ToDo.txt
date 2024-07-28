@@ -1,5 +1,6 @@
-redo everything to use sensors instead of gameStates
-agents should take in a function that determines score
+Fix 8puzzle(add check in game1 for end state to prevent crash)
+Fix cheese
+Fix? TicTacToe
 
 Fix q value visualization/maybe Debug Q learning
 

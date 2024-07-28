@@ -21,20 +21,20 @@ namespace _8PuzzleGame
 
         public List<Akshun<EightState>> GetActions(int agentID)
         {
-            var neighbors = agentInfo[agentID].GetNeighbors();
-            List<Akshun<EightState>> result = new List<Akshun<EightState>>();
-
-            foreach (var item in neighbors)
-            {
-                result.Add(new Akshun<EightState>(agentInfo[agentID], [new Successor<EightState>(item, 1, 1)], ""));
-            }
-
-            return result;
+            return GetActions(AgentInfo[agentID]);
         }
 
         public List<Akshun<EightState>> GetActions(EightState state)
         {
-            throw new NotImplementedException();
+            var neighbors = state.GetNeighbors();
+            List<Akshun<EightState>> result = new List<Akshun<EightState>>();
+
+            foreach (var item in neighbors)
+            {
+                result.Add(new Akshun<EightState>(state, [new Successor<EightState>(item, 1, 1)], ""));
+            }
+
+            return result;
         }
 
         public EightState MakeMove(Akshun<EightState> move, int agentID)
@@ -48,7 +48,18 @@ namespace _8PuzzleGame
     {
         enum Directions { Up, Down, Left, Right }
 
-        public int value
+        public int[,] Grid { get; private set; }
+
+        public bool IsTerminal
+        {
+            get
+            {
+                var solved = new EightState();
+                return Score == solved.Score;
+            }
+        }
+
+        public float Score
         {
             get
             {
@@ -67,18 +78,7 @@ namespace _8PuzzleGame
                 return result;
             }
         }
-        public int[,] Grid { get; private set; }
 
-        public bool IsTerminal
-        {
-            get
-            {
-                var solved = new EightState();
-                return value == solved.value;
-            }
-        }
-
-        public float Score { get => value; }
         public byte[] values
         {
             get
@@ -158,6 +158,7 @@ namespace _8PuzzleGame
 
         public override bool Equals(object obj)
         {
+            if (obj == null) return false;
             if (obj.GetType() != typeof(EightState)) return false;
 
             EightState other = obj as EightState;//idk, intelisense suggested it

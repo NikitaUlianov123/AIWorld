@@ -5,8 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using static System.Net.Mime.MediaTypeNames;
-
 namespace AIWorld
 {
     public interface IAgent<T> where T : ISensorReading
@@ -140,14 +138,11 @@ namespace AIWorld
 
         public T CurrentGameState { get; set; }
 
-        public Func<T, int> Heuristic { get; set; }
-
         bool Rewinding = false;
         int RewindCounter = 0;
 
-        public AStarAgent(Func<T, int> heuristic, T startState)
+        public AStarAgent( T startState)
         {
-            Heuristic = heuristic;
             CurrentGameState = startState;
             Frontier = new Frontier<T>();
             Frontier.Add(CurrentGameState, 1);
@@ -163,7 +158,7 @@ namespace AIWorld
                 {
                     if (!Frontier.Contains(next.State) && !Visited.Contains(next.State))
                     {
-                        Frontier.Add(next.State, Heuristic(next.State) + Cost);
+                        Frontier.Add(next.State, (int)next.State.Score + Cost);
                     }
                 }
             }

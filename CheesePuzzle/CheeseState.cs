@@ -103,6 +103,12 @@ namespace CheesePuzzle
             CostOfLiving = prev.CostOfLiving;
         }
 
+        public CheeseState(MouseSensors sensors)
+            : this(-1)
+        {
+            Mouse = new Point(sensors.values[0], sensors.values[1]);
+        }
+
         public override bool Equals(object obj)
         {
             if (obj == null || obj.GetType() != typeof(CheeseState)) return false;

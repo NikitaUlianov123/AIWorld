@@ -23,42 +23,50 @@ namespace CheesePuzzle
         {
             AgentInfo = new Dictionary<int, CheeseState>();
         }
-
-        public void AddAgent(int id, CheeseState state)
+        public void AddAgent(int ID, MouseSensors state)
         {
-            AgentInfo.Add(id, state);
+            AgentInfo.Add(ID, new CheeseState(state));
         }
 
         public List<Akshun<MouseSensors>> GetActions(int ID)
         {
+            return GetActions(AgentInfo[ID]);
+        }
+
+        public List<Akshun<MouseSensors>> GetActions(MouseSensors state)
+        {
+            return GetActions(new CheeseState(state));
+        }
+
+        private List<Akshun<MouseSensors>> GetActions(CheeseState state)
+        {
             List<Akshun<MouseSensors>> results = new List<Akshun<MouseSensors>>();
-            var State = AgentInfo[ID];
             //Up
-            results.Add(new Akshun<MouseSensors>(new MouseSensors(State),
-                [new Successor<MouseSensors>(new MouseSensors(new CheeseState(State, new Point(State.Mouse.X, State.Mouse.Y - 1))), 1, .8f),
-                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(State, new Point(State.Mouse.X + 1, State.Mouse.Y))), 1, .1f),
-                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(State, new Point(State.Mouse.X - 1, State.Mouse.Y))), 1, .1f)],
+            results.Add(new Akshun<MouseSensors>(new MouseSensors(state),
+                [new Successor<MouseSensors>(new MouseSensors(new CheeseState(state, new Point(state.Mouse.X, state.Mouse.Y - 1))), 1, .8f),
+                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(state, new Point(state.Mouse.X + 1, state.Mouse.Y))), 1, .1f),
+                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(state, new Point(state.Mouse.X - 1, state.Mouse.Y))), 1, .1f)],
                 "Up"));
 
             //Down
-            results.Add(new Akshun<MouseSensors>(new MouseSensors(State),
-                [new Successor<MouseSensors>(new MouseSensors(new CheeseState(State, new Point(State.Mouse.X, State.Mouse.Y + 1))), 1, .8f),
-                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(State, new Point(State.Mouse.X + 1, State.Mouse.Y))), 1, .1f),
-                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(State, new Point(State.Mouse.X - 1, State.Mouse.Y))), 1, .1f)],
+            results.Add(new Akshun<MouseSensors>(new MouseSensors(state),
+                [new Successor<MouseSensors>(new MouseSensors(new CheeseState(state, new Point(state.Mouse.X, state.Mouse.Y + 1))), 1, .8f),
+                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(state, new Point(state.Mouse.X + 1, state.Mouse.Y))), 1, .1f),
+                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(state, new Point(state.Mouse.X - 1, state.Mouse.Y))), 1, .1f)],
                 "Down"));
 
             //Left
-            results.Add(new Akshun<MouseSensors>(new MouseSensors(State),
-                [new Successor<MouseSensors>(new MouseSensors(new CheeseState(State, new Point(State.Mouse.X - 1, State.Mouse.Y))), 1, .8f),
-                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(State, new Point(State.Mouse.X, State.Mouse.Y + 1))), 1, .1f),
-                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(State, new Point(State.Mouse.X, State.Mouse.Y - 1))), 1, .1f)],
+            results.Add(new Akshun<MouseSensors>(new MouseSensors(state),
+                [new Successor<MouseSensors>(new MouseSensors(new CheeseState(state, new Point(state.Mouse.X - 1, state.Mouse.Y))), 1, .8f),
+                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(state, new Point(state.Mouse.X, state.Mouse.Y + 1))), 1, .1f),
+                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(state, new Point(state.Mouse.X, state.Mouse.Y - 1))), 1, .1f)],
                 "Left"));
 
             //Right
-            results.Add(new Akshun<MouseSensors>(new MouseSensors(State),
-                [new Successor<MouseSensors>(new MouseSensors(new CheeseState(State, new Point(State.Mouse.X + 1, State.Mouse.Y))), 1, .8f),
-                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(State, new Point(State.Mouse.X, State.Mouse.Y + 1))), 1, .1f),
-                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(State, new Point(State.Mouse.X, State.Mouse.Y - 1))), 1, .1f)],
+            results.Add(new Akshun<MouseSensors>(new MouseSensors(state),
+                [new Successor<MouseSensors>(new MouseSensors(new CheeseState(state, new Point(state.Mouse.X + 1, state.Mouse.Y))), 1, .8f),
+                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(state, new Point(state.Mouse.X, state.Mouse.Y + 1))), 1, .1f),
+                 new Successor<MouseSensors>(new MouseSensors(new CheeseState(state, new Point(state.Mouse.X, state.Mouse.Y - 1))), 1, .1f)],
                 "Right"));
 
             return results;
@@ -93,14 +101,6 @@ namespace CheesePuzzle
             throw new InvalidOperationException("Cannot move to requested spot");
         }
 
-        public void AddAgent(int ID, MouseSensors state)
-        {
-            throw new NotImplementedException();
-        }
 
-        public List<Akshun<MouseSensors>> GetActions(MouseSensors state)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

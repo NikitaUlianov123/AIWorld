@@ -16,6 +16,12 @@ namespace CheesePuzzle
 
         public float Score { get; private set; }
 
+        public MouseSensors()
+            : this(new CheeseState())
+        { 
+        
+        }
+
         public MouseSensors(CheeseState state)
         {
             IsTerminal = state.IsTerminal;

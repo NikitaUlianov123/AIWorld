@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AIWorld
 {
-    public class AgentRunner<TSensors> where TSensors : ISensorReading
+    public class AgentRunner<TSensors> where TSensors : ISensorReading, new()
     {
         public IEnvironment<TSensors> environment;
         
@@ -17,7 +17,7 @@ namespace AIWorld
             environment = env;
             agents = new List<IAgent<TSensors>>();
             agents.Add(agent);
-            env.AddAgent(0, new TState());
+            env.AddAgent(0, new());
         }
 
         public void DoTurn()
@@ -41,7 +41,7 @@ namespace AIWorld
 
         public List<Akshun<TSensors>> GetActions(TSensors state)
         {
-            return environment.
+            return environment.GetActions(state);
         }
     }
 }
