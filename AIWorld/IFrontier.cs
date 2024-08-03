@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Collections;
 
 namespace AIWorld
 {
     public interface IFrontier<T>
     {
         T Next { get;}
+
+        int Count { get; }
 
         void Add(T state, int priority);
 
@@ -22,7 +23,9 @@ namespace AIWorld
     public class Frontier<T> : IFrontier<T>
     {
         public PriorityQueue<T, int> frontier;
-        public T Next { get => frontier.Peek(); }
+        public T Next => frontier.Peek();
+
+        public int Count => frontier.Count;
 
         public Frontier()
         {

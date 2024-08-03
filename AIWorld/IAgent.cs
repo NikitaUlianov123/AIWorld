@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,8 +12,6 @@ namespace AIWorld
 {
     public interface IAgent<T> where T : ISensorReading
     {
-        int Cost { get; }
-
         List<T> Visited { get; }
 
         IFrontier<T> Frontier { get; }
@@ -20,6 +19,10 @@ namespace AIWorld
         T CurrentGameState { get; set; }
 
         Akshun<T> Move(List<Akshun<T>> actions);
+    }
+    public interface IFullInfoAgent<T> : IAgent<T> where T : ISensorReading
+    {
+        Func<T, List<Akshun<T>>> GetActions { get; set; }
     }
 
     public class BFSAgent<T> : IAgent<T> where T : ISensorReading
@@ -130,59 +133,57 @@ namespace AIWorld
         }
     }
 
-    public class AStarAgent<T> : IAgent<T> where T : ISensorReading
+    public class AStarAgent<T> : IFullInfoAgent<T> where T : ISensorReading
     {
-        public int Cost { get; private set; }
-
         public List<T> Visited { get; private set; }
 
         public IFrontier<T> Frontier { get; private set; }
 
         public T CurrentGameState { get; set; }
 
-        public Func<T, int> Heuristic { get; set; }
+        public Func<T, List<Akshun<T>>> GetActions { get; set; }
 
-        bool Rewinding = false;
-        int RewindCounter = 0;
+        private List<Akshun<T>> path;
 
-        public AStarAgent( T startState)
+        public AStarAgent(T startState, Func<T, List<Akshun<T>>> getActions)
         {
-            Heuristic = heuristic;
             CurrentGameState = startState;
             Frontier = new Frontier<T>();
             Frontier.Add(CurrentGameState, 1);
             Visited = new List<T>();
+            GetActions = getActions;
+
+            path = new List<Akshun<T>>();
+            GeneratePath();
         }
 
-        public Akshun<T> Move(List<Akshun<T>> actions)//Assuming moves can always be undone, rewrite if not
+        private void GeneratePath()
         {
-            if(!Rewinding) Frontier.RemoveNext();
-            foreach (var action in actions)
+            while (Frontier.Count > 0)
             {
-                foreach (var next in action.Results)
+                var actions = GetActions(Frontier.Next);
+                foreach (var action in actions)
                 {
-                    if (!Frontier.Contains(next.State) && !Visited.Contains(next.State))
+                    foreach (var next in action.Results)
                     {
-                        Frontier.Add(next.State, (int)next.State.Score + Cost);
+                        if (!Frontier.Contains(next.State) && !Visited.Contains(next.State))
+                        {
+                            Frontier.Add(next.State, (int)next.State.Score + next.Cost);
+                        }
                     }
                 }
-            }
 
-            Visited.Add(CurrentGameState);
-            if (Visited.Contains(Frontier.Next)) Frontier.RemoveNext();//To prevent loops
+                Visited.Add(CurrentGameState);
+                if (Visited.Contains(Frontier.Next)) Frontier.RemoveNext();//To prevent loops
 
-            if (actions.Where(x => x.Results.Where(x => x.State.Equals(Frontier.Next)).Count() > 0).Count() > 0)//Frontier.Next is a direct successor
-            {
-                Rewinding = false;
-                return actions.First(x => x.Results.Contains(x.Results.FirstOrDefault(y => y.State.Equals(Frontier.Next))));
+                //add to path
+                Frontier.RemoveNext();
             }
-            else//Frontier.Next was a successor to a previous state, backtracking
-            {
-                if (!Rewinding) RewindCounter = 2;
-                else RewindCounter++;
-                Rewinding = true;
-                return actions.First(x => x.Results.Contains(x.Results.FirstOrDefault(y => y.State.Equals(Visited[^RewindCounter]))));
-            }
+        }
+
+        public Akshun<T> Move(List<Akshun<T>> actions)
+        {
+            
         }
     }
 
@@ -225,10 +226,6 @@ namespace AIWorld
         }
     }
 
-    public interface IFullInfoAgent<T> : IAgent<T> where T : ISensorReading
-    {
-        Func<T, List<Akshun<T>>> GetActions { get; set; }
-    }
 
     public class ExpectiMax<T> : IFullInfoAgent<T> where T : ISensorReading
     {

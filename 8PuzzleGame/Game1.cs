@@ -65,7 +65,7 @@ namespace _8PuzzleGame
 
             timer += gameTime.ElapsedGameTime;
 
-            if (timer.Seconds >= 1)
+            if (timer.Seconds >= 1 && !runner.agents[0].CurrentGameState.Equals(new EightState()))
             {
                 runner.DoTurn();
                 timer = TimeSpan.Zero;

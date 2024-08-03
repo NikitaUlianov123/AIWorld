@@ -17,7 +17,7 @@ namespace AIWorld
             environment = env;
             agents = new List<IAgent<TSensors>>();
             agents.Add(agent);
-            env.AddAgent(0, new());
+            env.AddAgent(0, agent.CurrentGameState);
         }
 
         public void DoTurn()

@@ -37,11 +37,6 @@ namespace _8PuzzleGame
             return result;
         }
 
-        public List<Akshun<EightState>> GetActions(EightState state)
-        {
-            throw new NotImplementedException();
-        }
-
         public EightState MakeMove(Akshun<EightState> move, int agentID)
         {
             if (GetActions(agentID).Where(x => x.Equals(move)).Count() > 0) return move.Results[0].State;
@@ -83,18 +78,7 @@ namespace _8PuzzleGame
                 return result;
             }
         }
-        public int[,] Grid { get; private set; }
 
-        public bool IsTerminal
-        {
-            get
-            {
-                var solved = new EightState();
-                return value == solved.value;
-            }
-        }
-
-        public float Score { get => value; }
         public byte[] values
         {
             get
