@@ -37,16 +37,19 @@ namespace _8PuzzleGame
 
 
             startState = new int[,]{
-                { 1, 2, 3 },
-                { 7, 4, 5 },
-                { 8, 0, 6 } };
+                //{ 1, 2, 3 },
+                //{ 7, 4, 5 },
+                //{ 8, 0, 6 } };
             //{ 4, 1, 2 },
             //{ 7, 5, 3 },
             //{ 0, 8, 6 } };
+            { 1, 2, 3 },
+            { 4, 5, 6 },
+            { 0, 7, 8 } };
 
             var start = new EightPuzzle();
 
-            runner = new AgentRunner<EightState>(start, new AStarAgent<EightState>(new EightState(startState)));
+            runner = new AgentRunner<EightState>(start, new AStarAgent<EightState>(new EightState(invert(startState)), start.GetActions));
 
             base.Initialize();
         }

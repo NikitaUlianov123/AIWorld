@@ -68,9 +68,9 @@ namespace _8PuzzleGame
                 {
                     for (int j = 0; j < 3; j++)
                     {
-                        if (Grid[i, j] > 3 && Grid[i, j] != 0)
+                        if (Grid[i, j] > 3)
                         {
-                            result -= (Math.Abs(j - (Grid[i, j] / 3)) + Math.Abs(i - (Grid[i, j] % 3)));
+                            result += (Math.Abs(j - ((Grid[i, j] - 1) / 3)) + Math.Abs(i - ((Grid[i, j] - 1) % 3)));
                         }
                     }
                 }
@@ -177,9 +177,9 @@ namespace _8PuzzleGame
         public override int GetHashCode()
         {
             int result = 0;
-            for (var x = 0;x < 3;x ++)
+            for (var x = 0; x < 3; x++)
             {
-                for (var y = 0;y < 3;y ++)
+                for (var y = 0; y < 3; y++)
                 {
                     result *= 10;
                     result += Grid[x, y];

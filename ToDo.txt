@@ -1,11 +1,11 @@
-Fix 8puzzle(add check in game1 for end state to prevent crash)
+Fix 8puzzle(finish fixing A*)
 Fix cheese
 Fix? TicTacToe
 
 Fix q value visualization/maybe Debug Q learning
 
 Make MDP
-do cheese game with MDP
+do cheese game with MDP 
 
 Make deep Q
 do games with deep Q

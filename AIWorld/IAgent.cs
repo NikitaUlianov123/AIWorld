@@ -10,6 +10,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace AIWorld
 {
+    //new() results in the goal state for search agents
     public interface IAgent<T> where T : ISensorReading
     {
         List<T> Visited { get; }
@@ -25,7 +26,7 @@ namespace AIWorld
         Func<T, List<Akshun<T>>> GetActions { get; set; }
     }
 
-    public class BFSAgent<T> : IAgent<T> where T : ISensorReading
+    public class BFSAgent<T> : IAgent<T> where T : ISensorReading, new()
     {
         public int Cost { get; private set; }
 
@@ -61,7 +62,7 @@ namespace AIWorld
         }
     }
 
-    public class DFSAgent<T> : IAgent<T> where T : ISensorReading
+    public class DFSAgent<T> : IAgent<T> where T : ISensorReading, new()
     {
         public int Cost { get; private set; }
 
@@ -97,7 +98,7 @@ namespace AIWorld
         }
     }
 
-    public class UCSAgent<T> : IAgent<T> where T : ISensorReading
+    public class UCSAgent<T> : IAgent<T> where T : ISensorReading, new()
     {
         public int Cost { get; private set; }
 
@@ -133,7 +134,7 @@ namespace AIWorld
         }
     }
 
-    public class AStarAgent<T> : IFullInfoAgent<T> where T : ISensorReading
+    public class AStarAgent<T> : IFullInfoAgent<T> where T : ISensorReading, new()
     {
         public List<T> Visited { get; private set; }
 
@@ -143,7 +144,7 @@ namespace AIWorld
 
         public Func<T, List<Akshun<T>>> GetActions { get; set; }
 
-        private List<Akshun<T>> path;
+        private List<T> path;
 
         public AStarAgent(T startState, Func<T, List<Akshun<T>>> getActions)
         {
@@ -153,13 +154,13 @@ namespace AIWorld
             Visited = new List<T>();
             GetActions = getActions;
 
-            path = new List<Akshun<T>>();
-            GeneratePath();
+            path = new List<T>();
+            GeneratePath(new T());
         }
 
-        private void GeneratePath()
+        private void GeneratePath(T destination)
         {
-            while (Frontier.Count > 0)
+            while (!path.Contains(destination))
             {
                 var actions = GetActions(Frontier.Next);
                 foreach (var action in actions)
@@ -173,21 +174,25 @@ namespace AIWorld
                     }
                 }
 
-                Visited.Add(CurrentGameState);
-                if (Visited.Contains(Frontier.Next)) Frontier.RemoveNext();//To prevent loops
+                Visited.Add(Frontier.Next);
 
+                throw new Exception("make add to path happen at the end");
                 //add to path
+                path.Add(Frontier.Next);
+
                 Frontier.RemoveNext();
             }
         }
 
         public Akshun<T> Move(List<Akshun<T>> actions)
         {
-            
+            var next = path[1];
+            path.RemoveAt(0);
+            return actions.First(x => x.Results[0].State.Equals(next));
         }
     }
 
-    public class BogoAgent<T> : IAgent<T> where T : ISensorReading
+    public class BogoAgent<T> : IAgent<T> where T : ISensorReading, new()
     {
         public int Cost { get; private set; }
 
