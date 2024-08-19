@@ -1,4 +1,3 @@
-Fix 8puzzle(finish fixing A*)
 Fix cheese
 Fix? TicTacToe
 

@@ -14,10 +14,9 @@ namespace _8PuzzleGame
     {
         public EightState TargetState => new EightState();
 
-        public Dictionary<int, EightState> AgentInfo => agentInfo;
-        private Dictionary<int, EightState> agentInfo = new Dictionary<int, EightState>();
+        public Dictionary<int, EightState> AgentInfo = new Dictionary<int, EightState>();
 
-        public void AddAgent(int ID, EightState state) => agentInfo.Add(ID, state);
+        public void AddAgent(int ID, EightState state) => AgentInfo.Add(ID, state);
 
         public List<Akshun<EightState>> GetActions(int agentID)
         {
@@ -31,7 +30,7 @@ namespace _8PuzzleGame
 
             foreach (var item in neighbors)
             {
-                result.Add(new Akshun<EightState>(state, [new Successor<EightState>(item, 1, 1)], ""));
+                result.Add(new Akshun<EightState>(state, [new Successor<EightState>(item.state, 1, 1)], item.name));
             }
 
             return result;
@@ -39,7 +38,11 @@ namespace _8PuzzleGame
 
         public EightState MakeMove(Akshun<EightState> move, int agentID)
         {
-            if (GetActions(agentID).Where(x => x.Equals(move)).Count() > 0) return move.Results[0].State;
+            if (GetActions(agentID).Where(x => x.Equals(move)).Count() > 0)
+            {
+                AgentInfo[agentID] = move.Results[0].State;
+                return move.Results[0].State;
+            }
             throw new InvalidOperationException("Cannot move to requested spot");
         }
     }
@@ -143,15 +146,15 @@ namespace _8PuzzleGame
             }
         }
 
-        public List<EightState> GetNeighbors()
+        public List<(EightState state, string name)> GetNeighbors()
         {
-            List<EightState> result = new List<EightState>();
+            List<(EightState, string)> result = new List<(EightState, string)>();
             int Zero = FindZero();
 
-            if (Zero / 3 > 0) result.Add(new EightState(Grid, Directions.Up));
-            if (Zero / 3 < 2) result.Add(new EightState(Grid, Directions.Down));
-            if (Zero % 3 > 0) result.Add(new EightState(Grid, Directions.Left));
-            if (Zero % 3 < 2) result.Add(new EightState(Grid, Directions.Right));
+            if (Zero / 3 > 0) result.Add((new EightState(Grid, Directions.Up), "Up"));
+            if (Zero / 3 < 2) result.Add((new EightState(Grid, Directions.Down), "Down"));
+            if (Zero % 3 > 0) result.Add((new EightState(Grid, Directions.Left), "Left"));
+            if (Zero % 3 < 2) result.Add((new EightState(Grid, Directions.Right), "Right"));
 
             return result;
         }

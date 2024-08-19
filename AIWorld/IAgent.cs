@@ -26,7 +26,7 @@ namespace AIWorld
         Func<T, List<Akshun<T>>> GetActions { get; set; }
     }
 
-    public class BFSAgent<T> : IAgent<T> where T : ISensorReading, new()
+    public class BFSAgent<T> : IFullInfoAgent<T> where T : ISensorReading, new()
     {
         public int Cost { get; private set; }
 
@@ -36,33 +36,83 @@ namespace AIWorld
 
         public T CurrentGameState { get; set; }
 
-        public BFSAgent(T startState)
+        public Func<T, List<Akshun<T>>> GetActions { get; set; }
+
+        private List<T> path;
+
+        private Dictionary<T, (T founder, int distance)> founders;
+
+        private int currentPathIndex;
+
+        public BFSAgent(T startState, Func<T, List<Akshun<T>>> getActions)
         {
             CurrentGameState = startState;
             Frontier = new Frontier<T>();
             Frontier.Add(CurrentGameState, 1);
             Visited = new List<T>();
+            GetActions = getActions;
+
+            founders = new Dictionary<T, (T, int)>();
+            path = new List<T>();
+            GeneratePath(new T());
+            currentPathIndex = path.Count - 1;
+        }
+
+        private void GeneratePath(T destination)
+        {
+            founders.Clear();
+            founders.Add(CurrentGameState, (CurrentGameState, 0));
+
+
+            while (!Visited.Contains(destination))
+            {
+                var currentState = Frontier.Next;
+                Frontier.RemoveNext();
+
+                var actions = GetActions(currentState);
+                foreach (var action in actions)
+                {
+                    foreach (var next in action.Results)
+                    {
+                        if (!Frontier.Contains(next.State) && !Visited.Contains(next.State))
+                        {
+                            Frontier.Add(next.State, next.Cost);
+                        }
+
+                        if (founders.ContainsKey(next.State))
+                        {
+                            if (founders[next.State].distance > founders[currentState].distance + next.Cost)
+                            {
+                                founders[next.State] = (currentState, founders[currentState].distance + next.Cost);
+                            }
+                        }
+                        else
+                        {
+                            founders.Add(next.State, (currentState, founders[currentState].distance + next.Cost));
+                        }
+                    }
+                }
+
+                Visited.Add(currentState);
+            }
+
+            T current = destination;
+            while (!current.Equals(CurrentGameState))
+            {
+                path.Add(current);
+                current = founders[current].founder;
+            }
         }
 
         public Akshun<T> Move(List<Akshun<T>> actions)
         {
-            Frontier.RemoveNext();
-            foreach (var action in actions)
-            {
-                foreach (var next in action.Results)
-                {
-                    if (!Frontier.Contains(next.State) && !Visited.Contains(next.State))
-                    {
-                        Frontier.Add(next.State, next.Cost);
-                    }
-                }
-            }
-            Visited.Add(CurrentGameState);
-            return actions.First(x => x.Results.Contains(x.Results.FirstOrDefault(y => y.State.Equals(Frontier.Next))));
+            var next = path[currentPathIndex];
+            currentPathIndex--;
+            return actions.First(x => x.Results[0].State.Equals(next));
         }
     }
 
-    public class DFSAgent<T> : IAgent<T> where T : ISensorReading, new()
+    public class DFSAgent<T> : IFullInfoAgent<T> where T : ISensorReading, new()
     {
         public int Cost { get; private set; }
 
@@ -72,33 +122,83 @@ namespace AIWorld
 
         public T CurrentGameState { get; set; }
 
-        public DFSAgent(T startState)
+        public Func<T, List<Akshun<T>>> GetActions { get; set; }
+
+        private List<T> path;
+
+        private Dictionary<T, (T founder, int distance)> founders;
+
+        private int currentPathIndex;
+
+        public DFSAgent(T startState, Func<T, List<Akshun<T>>> getActions)
         {
             CurrentGameState = startState;
             Frontier = new Frontier<T>();
             Frontier.Add(CurrentGameState, 1);
             Visited = new List<T>();
+            GetActions = getActions;
+
+            founders = new Dictionary<T, (T, int)>();
+            path = new List<T>();
+            GeneratePath(new T());
+            currentPathIndex = path.Count - 1;
+        }
+
+        private void GeneratePath(T destination)
+        {
+            founders.Clear();
+            founders.Add(CurrentGameState, (CurrentGameState, 0));
+
+
+            while (!Visited.Contains(destination))
+            {
+                var currentState = Frontier.Next;
+                Frontier.RemoveNext();
+
+                var actions = GetActions(currentState);
+                foreach (var action in actions)
+                {
+                    foreach (var next in action.Results)
+                    {
+                        if (!Frontier.Contains(next.State) && !Visited.Contains(next.State))
+                        {
+                            Frontier.Add(next.State, -next.Cost);
+                        }
+
+                        if (founders.ContainsKey(next.State))
+                        {
+                            if (founders[next.State].distance > founders[currentState].distance + next.Cost)
+                            {
+                                founders[next.State] = (currentState, founders[currentState].distance + next.Cost);
+                            }
+                        }
+                        else
+                        {
+                            founders.Add(next.State, (currentState, founders[currentState].distance + next.Cost));
+                        }
+                    }
+                }
+
+                Visited.Add(currentState);
+            }
+
+            T current = destination;
+            while (!current.Equals(CurrentGameState))
+            {
+                path.Add(current);
+                current = founders[current].founder;
+            }
         }
 
         public Akshun<T> Move(List<Akshun<T>> actions)
         {
-            Frontier.RemoveNext();
-            foreach (var action in actions)
-            {
-                foreach (var next in action.Results)
-                {
-                    if (!Frontier.Contains(next.State) && !Visited.Contains(next.State))
-                    {
-                        Frontier.Add(next.State, -next.Cost);
-                    }
-                }
-            }
-            Visited.Add(CurrentGameState);
-            return actions.First(x => x.Results.Contains(x.Results.FirstOrDefault(y => y.State.Equals(Frontier.Next))));
+            var next = path[currentPathIndex];
+            currentPathIndex--;
+            return actions.First(x => x.Results[0].State.Equals(next));
         }
     }
 
-    public class UCSAgent<T> : IAgent<T> where T : ISensorReading, new()
+    public class UCSAgent<T> : IFullInfoAgent<T> where T : ISensorReading, new()
     {
         public int Cost { get; private set; }
 
@@ -108,29 +208,79 @@ namespace AIWorld
 
         public T CurrentGameState { get; set; }
 
-        public UCSAgent(T startState)
+        public Func<T, List<Akshun<T>>> GetActions { get; set; }
+
+        private List<T> path;
+
+        private Dictionary<T, (T founder, int distance)> founders;
+
+        private int currentPathIndex;
+
+        public UCSAgent(T startState, Func<T, List<Akshun<T>>> getActions)
         {
             CurrentGameState = startState;
             Frontier = new Frontier<T>();
             Frontier.Add(CurrentGameState, 1);
             Visited = new List<T>();
+            GetActions = getActions;
+
+            founders = new Dictionary<T, (T, int)>();
+            path = new List<T>();
+            GeneratePath(new T());
+            currentPathIndex = path.Count - 1;
+        }
+
+        private void GeneratePath(T destination)
+        {
+            founders.Clear();
+            founders.Add(CurrentGameState, (CurrentGameState, 0));
+
+
+            while (!Visited.Contains(destination))
+            {
+                var currentState = Frontier.Next;
+                Frontier.RemoveNext();
+
+                var actions = GetActions(currentState);
+                foreach (var action in actions)
+                {
+                    foreach (var next in action.Results)
+                    {
+                        if (!Frontier.Contains(next.State) && !Visited.Contains(next.State))
+                        {
+                            Frontier.Add(next.State, 1);
+                        }
+
+                        if (founders.ContainsKey(next.State))
+                        {
+                            if (founders[next.State].distance > founders[currentState].distance + next.Cost)
+                            {
+                                founders[next.State] = (currentState, founders[currentState].distance + next.Cost);
+                            }
+                        }
+                        else
+                        {
+                            founders.Add(next.State, (currentState, founders[currentState].distance + next.Cost));
+                        }
+                    }
+                }
+
+                Visited.Add(currentState);
+            }
+
+            T current = destination;
+            while (!current.Equals(CurrentGameState))
+            {
+                path.Add(current);
+                current = founders[current].founder;
+            }
         }
 
         public Akshun<T> Move(List<Akshun<T>> actions)
         {
-            Frontier.RemoveNext();
-            foreach (var action in actions)
-            {
-                foreach (var next in action.Results)
-                {
-                    if (!Frontier.Contains(next.State) && !Visited.Contains(next.State))
-                    {
-                        Frontier.Add(next.State, 1);
-                    }
-                }
-            }
-            Visited.Add(CurrentGameState);
-            return actions.First(x => x.Results.Contains(x.Results.FirstOrDefault(y => y.State.Equals(Frontier.Next))));
+            var next = path[currentPathIndex];
+            currentPathIndex--;
+            return actions.First(x => x.Results[0].State.Equals(next));
         }
     }
 
@@ -146,6 +296,10 @@ namespace AIWorld
 
         private List<T> path;
 
+        private Dictionary<T, (T founder, int distance)> founders;
+
+        private int currentPathIndex;
+
         public AStarAgent(T startState, Func<T, List<Akshun<T>>> getActions)
         {
             CurrentGameState = startState;
@@ -154,15 +308,23 @@ namespace AIWorld
             Visited = new List<T>();
             GetActions = getActions;
 
+            founders = new Dictionary<T, (T, int)>();
             path = new List<T>();
             GeneratePath(new T());
+            currentPathIndex = path.Count - 1;
         }
 
         private void GeneratePath(T destination)
         {
-            while (!path.Contains(destination))
+            founders.Clear();
+            founders.Add(CurrentGameState, (CurrentGameState, 0));
+
+            while (/*!founders.ContainsKey(destination) || founders[destination].distance > 32)*/!Visited.Contains(destination))
             {
-                var actions = GetActions(Frontier.Next);
+                var currentState = Frontier.Next;
+                Frontier.RemoveNext();
+
+                var actions = GetActions(currentState);
                 foreach (var action in actions)
                 {
                     foreach (var next in action.Results)
@@ -171,23 +333,36 @@ namespace AIWorld
                         {
                             Frontier.Add(next.State, (int)next.State.Score + next.Cost);
                         }
+
+                        if (founders.ContainsKey(next.State))
+                        {
+                            if (founders[next.State].distance > founders[currentState].distance + next.Cost)
+                            {
+                                founders[next.State] = (currentState, founders[currentState].distance + next.Cost);
+                            }
+                        }
+                        else
+                        {
+                            founders.Add(next.State, (currentState, founders[currentState].distance + next.Cost));
+                        }
                     }
                 }
 
-                Visited.Add(Frontier.Next);
+                Visited.Add(currentState);
+            }
 
-                throw new Exception("make add to path happen at the end");
-                //add to path
-                path.Add(Frontier.Next);
-
-                Frontier.RemoveNext();
+            T current = destination;
+            while (!current.Equals(CurrentGameState))
+            {
+                path.Add(current);
+                current = founders[current].founder;
             }
         }
 
         public Akshun<T> Move(List<Akshun<T>> actions)
         {
-            var next = path[1];
-            path.RemoveAt(0);
+            var next = path[currentPathIndex];
+            currentPathIndex--;
             return actions.First(x => x.Results[0].State.Equals(next));
         }
     }
@@ -215,19 +390,7 @@ namespace AIWorld
 
         public Akshun<T> Move(List<Akshun<T>> actions)
         {
-            Frontier.RemoveNext();
-            foreach (var action in actions)
-            {
-                foreach (var next in action.Results)
-                {
-                    if (!Frontier.Contains(next.State) && !Visited.Contains(next.State))
-                    {
-                        Frontier.Add(next.State, random.Next());
-                    }
-                }
-            }
-            Visited.Add(CurrentGameState);
-            return actions.First(x => x.Results.Contains(x.Results.FirstOrDefault(y => y.State.Equals(Frontier.Next))));
+            return actions[random.Next(actions.Count)];
         }
     }
 
@@ -242,7 +405,7 @@ namespace AIWorld
             public Node(Func<T, List<Akshun<T>>> getActions, T startState, Dictionary<T, Node> prev = null)
             {
                 Children = new List<(Node, float chance)>();
-                if(prev == null) prev = new Dictionary<T, Node>();
+                if (prev == null) prev = new Dictionary<T, Node>();
                 State = startState;
                 if (!prev.ContainsKey(State))
                 {
@@ -337,7 +500,7 @@ namespace AIWorld
                     var temp = start;
                     for (int j = 0; j < 100; j++)
                     {
-                        
+
                     }
                     //Successors[start].Add(successors[]);
                 }

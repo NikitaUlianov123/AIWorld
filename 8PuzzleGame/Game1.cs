@@ -24,6 +24,8 @@ namespace _8PuzzleGame
         int[,] startState;
         AgentRunner<EightState> runner;
 
+        int count = 0;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -43,9 +45,12 @@ namespace _8PuzzleGame
             //{ 4, 1, 2 },
             //{ 7, 5, 3 },
             //{ 0, 8, 6 } };
-            { 1, 2, 3 },
-            { 4, 5, 6 },
-            { 0, 7, 8 } };
+            //{ 1, 2, 3 },
+            //{ 4, 5, 6 },
+            //{ 0, 7, 8 } };
+                { 7, 2, 5 },
+                { 1, 8, 3 },
+                { 6, 4, 0 } };
 
             var start = new EightPuzzle();
 
@@ -68,10 +73,11 @@ namespace _8PuzzleGame
 
             timer += gameTime.ElapsedGameTime;
 
-            if (timer.Seconds >= 1 && !runner.agents[0].CurrentGameState.Equals(new EightState()))
+            if (timer.Milliseconds >= 100 && !runner.agents[0].CurrentGameState.Equals(new EightState()))
             {
                 runner.DoTurn();
                 timer = TimeSpan.Zero;
+                count++;
             }
 
             base.Update(gameTime);
@@ -104,7 +110,7 @@ namespace _8PuzzleGame
                     spriteBatch.DrawString(font, runner.agents[0].CurrentGameState.Grid[x, y].ToString(), new Vector2((x * 100) + 50, (y * 100) + 50), Color.Black);
                 }
             }
-
+            spriteBatch.DrawString(font, count.ToString(), new Vector2(300, 300), Color.Black);
             spriteBatch.End();
 
             base.Draw(gameTime);
