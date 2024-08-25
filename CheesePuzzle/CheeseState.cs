@@ -74,20 +74,20 @@ namespace CheesePuzzle
 
         public CheeseState(int costOfLiving)
         {
-            //Grid = new Tile[6, 6];
-            //Grid[4, 3] = Tile.Cheese;
+            Grid = new Tile[6, 6];
+            Grid[4, 3] = Tile.Cheese;
 
-            //Mouse = new Point(1, 1);
+            Mouse = new Point(1, 1);
 
-            Mouse = new Point(0, 0);
-            Grid = new Tile[10, 10];
-            Grid[2, 7] = Tile.Cheese;
-            Grid[4, 0] = Tile.FirePit;
-            Grid[4, 1] = Tile.FirePit;
-            Grid[4, 2] = Tile.FirePit;
-            Grid[4, 3] = Tile.FirePit;
-            Grid[4, 4] = Tile.FirePit;
-            Grid[4, 5] = Tile.FirePit;
+            //Mouse = new Point(0, 0);
+            //Grid = new Tile[10, 10];
+            //Grid[2, 7] = Tile.Cheese;
+            //Grid[4, 0] = Tile.FirePit;
+            //Grid[4, 1] = Tile.FirePit;
+            //Grid[4, 2] = Tile.FirePit;
+            //Grid[4, 3] = Tile.FirePit;
+            //Grid[4, 4] = Tile.FirePit;
+            //Grid[4, 5] = Tile.FirePit;
 
 
 

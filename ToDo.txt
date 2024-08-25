@@ -1,4 +1,3 @@
-Fix cheese
 Fix? TicTacToe
 
 Fix q value visualization/maybe Debug Q learning

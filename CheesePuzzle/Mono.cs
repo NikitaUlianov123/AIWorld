@@ -43,7 +43,7 @@ namespace CheesePuzzle
         {
             delay = TimeSpan.Zero;
             elapsed = TimeSpan.Zero;
-            Runner = new AgentRunner<MouseSensors>(new CheeseEnvironment(), new QAgent<MouseSensors>(new MouseSensors(new CheeseState(-1)), 0.3f, 0.1f));
+            Runner = new AgentRunner<MouseSensors>(new CheeseEnvironment(), new QAgent<MouseSensors>(new MouseSensors(new CheeseState(-1)), 0.3f, 0.05f));
 
             for (int i = 0; i < 1000; i++)
             {
@@ -70,7 +70,7 @@ namespace CheesePuzzle
             int tileSize = Editor.GraphicsDevice.Viewport.Width / ((CheeseEnvironment)(Runner.environment)).AgentInfo[0].Grid.GetLength(1);
             Microsoft.Xna.Framework.Color color = Microsoft.Xna.Framework.Color.White;
 
-            var QValues = Normalize(GetQValues(), 0, 255);
+            var QValues = Normalize(GetQValues(), 0, 1);
 
             for (int x = 0; x < ((CheeseEnvironment)(Runner.environment)).AgentInfo[0].Grid.GetLength(1); x++)
             {
@@ -93,7 +93,7 @@ namespace CheesePuzzle
                         default:
                             if (ShowQ)
                             {
-                                color = new Microsoft.Xna.Framework.Color(Microsoft.Xna.Framework.Color.Black, 255 - QValues[y, x]);
+                                color = new Microsoft.Xna.Framework.Color(Microsoft.Xna.Framework.Color.Black, QValues[y, x]);
                             }
                             else
                             {
@@ -115,9 +115,9 @@ namespace CheesePuzzle
         }
 
 
-        public int[,] GetQValues()
+        public float[,] GetQValues()
         {
-            int[,] values = new int[((CheeseEnvironment)(Runner.environment)).AgentInfo[0].Grid.GetLength(0), ((CheeseEnvironment)(Runner.environment)).AgentInfo[0].Grid.GetLength(1)];
+            float[,] values = new float[((CheeseEnvironment)(Runner.environment)).AgentInfo[0].Grid.GetLength(0), ((CheeseEnvironment)(Runner.environment)).AgentInfo[0].Grid.GetLength(1)];
 
             var Model = ((QAgent<MouseSensors>)(Runner.agents[0])).Model;
 
@@ -131,7 +131,7 @@ namespace CheesePuzzle
                     {
                         if (action.Key.action.Results[0].State.values[0] == x && action.Key.action.Results[0].State.values[1] == y)
                         {
-                            values[y, x] += (int)(action.Value.score);
+                            values[y, x] += action.Value.score;
                         }
                     }
                 }
@@ -140,33 +140,28 @@ namespace CheesePuzzle
             return values;
         }
 
-        public int[,] Normalize(int[,] input, int nMin, int nMax)
+        public float[,] Normalize(float[,] input, float nMin, float nMax)
         {
-            int min = int.MaxValue;
-            int max = int.MinValue;
+            float min = float.MaxValue;
+            float max = float.MinValue;
 
             for (int y = 0; y < input.GetLength(0); y++)
             {
                 for (int x = 0; x < input.GetLength(1); x++)
                 {
-                    if (input[y, x] < min && input[y, x] != int.MinValue) min = input[y, x];
+                    if (input[y, x] < min) min = input[y, x];
 
-                    if (input[y, x] > max && input[y, x] != int.MaxValue) max = input[y, x];
+                    if (input[y, x] > max) max = input[y, x];
                 }
             }
 
-            int[,] result = new int[input.GetLength(0), input.GetLength(1)];
+            float[,] result = new float[input.GetLength(0), input.GetLength(1)];
             if (min == max) return result;
             for (int y = 0; y < input.GetLength(0); y++)
             {
                 for (int x = 0; x < input.GetLength(1); x++)
                 {
-                    if (input[y, x] == int.MinValue || input[y, x] == int.MaxValue) result[y, x] = input[y, x];
-
-                    else
-                    {
-                        result[y, x] = (((input[y, x] - min) / (max - min)) * (nMax - nMin)) + nMin;
-                    }
+                    result[y, x] = (((input[y, x] - min) / (max - min)) * (nMax - nMin)) + nMin;
                 }
             }
 
