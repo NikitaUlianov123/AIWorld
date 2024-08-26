@@ -1,7 +1,3 @@
-Fix? TicTacToe
-
-Fix q value visualization/maybe Debug Q learning
-
 Make MDP
 do cheese game with MDP 
 

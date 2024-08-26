@@ -8,7 +8,7 @@ using AIWorld;
 
 namespace TicTacChance
 {
-    public class TicTacState : IAgentState
+    public class TicTacState : ISensorReading
     {
         public enum State
         {
@@ -28,6 +28,37 @@ namespace TicTacChance
         }
 
         public float Score { get; set; }
+
+        public byte[] values
+        {
+            get
+            {
+                byte[] result = new byte[Grid.Length];
+
+                for (int i = 0; i < Grid.GetLength(0); i++)
+                {
+                    for (int j = 0; j < Grid.GetLength(1); j++)
+                    {
+                        switch (Grid[i, j])
+                        {
+                            case null:
+                                result[(i * Grid.GetLength(0)) + j] = 0;
+                                break;
+
+                            case true:
+                                result[(i * Grid.GetLength(0)) + j] = 1;
+                                break;
+
+                            case false:
+                                result[(i * Grid.GetLength(0)) + j] = 2;
+                                break;
+                        }
+                    }
+                }
+
+                return result;
+            }
+        }
 
         State state;
 

@@ -13,6 +13,8 @@ namespace TicTacChance
         Random randy = new Random();
         public TicTacState TargetState => throw new NotImplementedException();
 
+        public Dictionary<int, TicTacState> AgentInfo = new Dictionary<int, TicTacState>();
+
         public static float[,] chances =
             {
             { .5f, 1, .5f },
@@ -20,6 +22,10 @@ namespace TicTacChance
             { .5f, 1, .5f }
             };//this array makes me sad
 
+        public List<Akshun<TicTacState>> GetActions(int agentID)
+        {
+            return GetActions(AgentInfo[agentID]);
+        }
         public List<Akshun<TicTacState>> GetActions(TicTacState State)
         {
             List<Akshun<TicTacState>> result = new List<Akshun<TicTacState>>();
@@ -37,19 +43,26 @@ namespace TicTacChance
                         if (State.Missed[State.Turn] || chances[i, j] >= 1)
                         {
                             result.Add(new Akshun<TicTacState>(State,
-                                [new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, State.Missed, (i, j)), 1, 1)]));
+                                [new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, State.Missed, (i, j)), 1, 1)], $"Place {i}, {j}"));
                         }
                         else
                         {
                             result.Add(new Akshun<TicTacState>(State,
                                 [new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, false, State.Missed, (i, j)), 1, chances[i, j]),
-                                 new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, true, State.Missed, (i, j)), 1, 1 - chances[i, j])]));
+                                 new Successor<TicTacState>(new TicTacState(State.Grid, State.Turn, true, State.Missed, (i, j)), 1, 1 - chances[i, j])], $"Attempt {i}, {j}"));
                         }
                     }
                 }
             }
 
             return result;
+        }
+
+        public TicTacState MakeMove(Akshun<TicTacState> move, int agentID)
+        {
+            var resultState = MakeMove(move, AgentInfo[agentID]);
+            AgentInfo[agentID] = resultState;
+            return resultState;
         }
 
         public TicTacState MakeMove(Akshun<TicTacState> move, TicTacState currentState)
@@ -74,6 +87,11 @@ namespace TicTacChance
                 return currentState;
             }
             throw new InvalidOperationException("Cannot move to requested spot");
+        }
+
+        public void AddAgent(int ID, TicTacState state)
+        {
+            AgentInfo.Add(ID, state);
         }
     }
 }
