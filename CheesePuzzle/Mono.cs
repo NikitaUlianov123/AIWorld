@@ -43,7 +43,7 @@ namespace CheesePuzzle
         {
             delay = TimeSpan.Zero;
             elapsed = TimeSpan.Zero;
-            Runner = new AgentRunner<MouseSensors>(new CheeseEnvironment(), new QAgent<MouseSensors>(new MouseSensors(new CheeseState(-1)), 0.3f, 0.05f));
+            Runner = new AgentRunner<MouseSensors>(new CheeseEnvironment(), new QAgent<MouseSensors>(new MouseSensors(new CheeseState(-1)), 0.3f, 0.005f));
 
             for (int i = 0; i < 1000; i++)
             {

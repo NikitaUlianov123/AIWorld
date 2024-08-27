@@ -553,9 +553,9 @@ namespace AIWorld
                 //record result of prev move in Model
                 if (Model.ContainsKey(prev))
                 {
-                    //Best score from current state:
+                    //Best score to current state:
                     float best = float.MinValue;
-                    foreach (var action in Model.Where(x => x.Key.state.Equals(CurrentGameState)))
+                    foreach (var action in Model.Where(x => x.Key.action.Results.Where(y => y.State.Equals(CurrentGameState)).Count() > 0))
                     {
                         best = Math.Max(best, Model[action.Key].score);
                     }
