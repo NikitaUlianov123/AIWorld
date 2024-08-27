@@ -13,7 +13,7 @@ namespace CheesePuzzle
         {
             var Slider = (TrackBar)sender;
 
-            mono1.LearningRate = 0.01f;//Slider.Value * 0.001f;
+            mono1.LearningRate = Slider.Value * 0.01f;
         }
 
         private void EpsilonSlider_Scroll(object sender, EventArgs e)
