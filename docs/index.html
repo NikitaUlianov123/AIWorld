@@ -1,0 +1,1998 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIWorld Playground</title>
+<meta name="description" content="AIWorld is a modular C# playground for AI agents and environments: search, expectimax and Q-learning, with live browser demos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f5f0;
+  --surface: #ffffff;
+  --surface-2: #efede6;
+  --ink: #15171c;
+  --muted: #5a606c;
+  --line: #dedbd1;
+  --accent: #0f766e;
+  --accent-ink: #ffffff;
+  --accent-soft: #d5efeb;
+  --warm: #c2410c;
+  --good: #15803d;
+  --bad: #b91c1c;
+  --wall: #3f3a33;
+  --tile: #c98a4b;
+  --tile-ink: #1d1206;
+  --shadow: 0 1px 2px rgba(20, 20, 20, .06), 0 8px 24px rgba(20, 20, 20, .06);
+  --radius: 14px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1015;
+    --surface: #151a21;
+    --surface-2: #1c232c;
+    --ink: #e8eaee;
+    --muted: #9aa3b1;
+    --line: #29313c;
+    --accent: #2dd4bf;
+    --accent-ink: #04201c;
+    --accent-soft: #123a36;
+    --warm: #fb923c;
+    --good: #4ade80;
+    --bad: #f87171;
+    --wall: #59616d;
+    --tile: #d29a5c;
+    --tile-ink: #1d1206;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1015;
+  --surface: #151a21;
+  --surface-2: #1c232c;
+  --ink: #e8eaee;
+  --muted: #9aa3b1;
+  --line: #29313c;
+  --accent: #2dd4bf;
+  --accent-ink: #04201c;
+  --accent-soft: #123a36;
+  --warm: #fb923c;
+  --good: #4ade80;
+  --bad: #f87171;
+  --wall: #59616d;
+  --tile: #d29a5c;
+  --tile-ink: #1d1206;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.6 "Space Grotesk", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); }
+code, pre, .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+
+/* ===== Nav ===== */
+.nav {
+  position: sticky; top: 0; z-index: 10;
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.nav .wrap { display: flex; align-items: center; gap: 20px; height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--ink); text-decoration: none; letter-spacing: -.01em; }
+.brand-mark { width: 26px; height: 26px; border-radius: 7px; background: var(--accent); display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 4px; }
+.brand-mark span { background: var(--accent-ink); border-radius: 1px; opacity: .9; }
+.brand-mark span:nth-child(5) { opacity: .25; }
+.nav-links { display: flex; gap: 18px; margin-left: auto; align-items: center; }
+.nav-links a { color: var(--muted); text-decoration: none; font-size: 15px; }
+.nav-links a:hover { color: var(--ink); }
+.icon-btn { background: none; border: 1px solid var(--line); color: var(--ink); border-radius: 8px; width: 36px; height: 36px; cursor: pointer; display: grid; place-items: center; }
+@media (max-width: 720px) { .nav-links a.hide-sm { display: none; } }
+
+/* ===== Hero ===== */
+.hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); }
+#heroCanvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .55; }
+.hero-inner { position: relative; padding-top: 88px; padding-bottom: 80px; }
+.eyebrow { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; color: var(--accent); background: var(--accent-soft); padding: 4px 12px; border-radius: 999px; font-weight: 600; }
+.hero h1 { font-size: clamp(44px, 8vw, 84px); line-height: 1; letter-spacing: -.04em; margin: 20px 0 16px; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero p.lead { font-size: clamp(18px, 2.3vw, 22px); color: var(--muted); max-width: 640px; margin: 0 0 28px; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px; font: inherit; font-weight: 600; font-size: 15px; text-decoration: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.small { padding: 6px 12px; font-size: 14px; border-radius: 8px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.stats { display: flex; flex-wrap: wrap; gap: 28px; margin-top: 44px; }
+.stat b { display: block; font-size: 30px; letter-spacing: -.02em; }
+.stat span { color: var(--muted); font-size: 14px; }
+
+/* ===== Sections ===== */
+section.block { padding: 80px 0; border-bottom: 1px solid var(--line); }
+.section-head { max-width: 700px; margin-bottom: 36px; }
+.section-head .kicker { font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--warm); font-weight: 600; }
+.section-head h2 { font-size: clamp(30px, 4.5vw, 42px); letter-spacing: -.03em; line-height: 1.1; margin: 8px 0 12px; }
+.section-head p { color: var(--muted); margin: 0; }
+
+/* ===== Demos ===== */
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+.tab { font: inherit; font-size: 15px; font-weight: 500; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.panel { display: none; }
+.panel.active { display: block; }
+.demo { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.demo-stage { padding: 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; border-right: 1px solid var(--line); min-height: 420px; }
+.demo-side { padding: 28px; display: flex; flex-direction: column; gap: 18px; }
+.demo-side h3 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
+.demo-side p { margin: 0; color: var(--muted); font-size: 15px; }
+@media (max-width: 860px) {
+  .demo { grid-template-columns: minmax(0, 1fr); }
+  .demo-stage { border-right: none; border-bottom: 1px solid var(--line); min-height: 0; padding: 20px 16px; }
+  .demo-side { padding: 20px 16px; }
+}
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+.seg button { font: inherit; font-size: 14px; padding: 6px 12px; border: none; background: transparent; color: var(--muted); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+.metric { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; }
+.metric span { display: block; font-size: 12px; color: var(--muted); }
+.metric b { font-size: 20px; font-variant-numeric: tabular-nums; }
+.slider { display: grid; grid-template-columns: 110px 1fr 56px; gap: 10px; align-items: center; font-size: 14px; }
+.slider label { color: var(--muted); }
+.slider output { text-align: right; font-variant-numeric: tabular-nums; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.note { font-size: 13px; color: var(--muted); border-left: 3px solid var(--line); padding-left: 10px; }
+.status { font-size: 15px; min-height: 24px; font-weight: 500; }
+
+/* 8-puzzle */
+.board8 { position: relative; width: min(300px, 78vw); aspect-ratio: 1; background: var(--surface-2); border-radius: 14px; padding: 6px; }
+.t8 { position: absolute; width: calc((100% - 12px) / 3 - 6px); aspect-ratio: 1; border-radius: 10px; background: var(--tile); color: var(--tile-ink); display: grid; place-items: center; font-size: clamp(26px, 6vw, 38px); font-weight: 700; cursor: pointer; transition: transform .16s ease; box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .15); user-select: none; }
+@media (prefers-reduced-motion: reduce) { .t8 { transition: none; } }
+.bars { display: flex; flex-direction: column; gap: 8px; }
+.bar-row { display: grid; grid-template-columns: 52px 1fr; gap: 10px; align-items: center; font-size: 13px; }
+.bar-track { background: var(--surface-2); border-radius: 6px; height: 22px; position: relative; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--accent); border-radius: 6px; min-width: 2px; }
+.bar-track em { position: absolute; left: 8px; top: 1px; font-style: normal; font-size: 12px; color: var(--ink); mix-blend-mode: normal; }
+
+/* cheese */
+#cheeseCanvas { width: min(420px, 100%); aspect-ratio: 1; border-radius: 12px; cursor: pointer; touch-action: manipulation; }
+#cheeseChart { width: 100%; height: 90px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+
+/* tic tac */
+.ttt { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: min(320px, 82vw); }
+.cell { aspect-ratio: 1; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); font: inherit; cursor: pointer; position: relative; display: grid; place-items: center; color: var(--ink); padding: 0; }
+.cell:disabled { cursor: default; }
+.cell .piece { font-size: clamp(40px, 10vw, 58px); font-weight: 700; line-height: 1; }
+.cell .piece.x { color: var(--accent); }
+.cell .piece.o { color: var(--warm); }
+.cell .chance { position: absolute; top: 6px; left: 8px; font-size: 12px; color: var(--muted); font-family: "JetBrains Mono", monospace; }
+.cell .ev { position: absolute; bottom: 6px; right: 8px; font-size: 12px; font-family: "JetBrains Mono", monospace; }
+.cell.flash { animation: flash .6s ease; }
+@keyframes flash { 0% { box-shadow: 0 0 0 0 var(--bad); } 100% { box-shadow: 0 0 0 10px transparent; } }
+.cell.win { background: var(--accent-soft); }
+.score { display: flex; gap: 10px; }
+
+/* markov */
+textarea { width: 100%; min-height: 150px; resize: vertical; font: 14px/1.5 "JetBrains Mono", monospace; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); }
+input[type="text"] { font: inherit; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); width: 140px; }
+.story { background: var(--surface-2); border-radius: 12px; padding: 16px 18px; font-size: 17px; line-height: 1.7; width: 100%; min-height: 160px; }
+.story .seed { color: var(--accent); font-weight: 600; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { font-size: 12px; font-family: "JetBrains Mono", monospace; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; }
+
+/* ===== How it works ===== */
+.loop { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; counter-reset: step; margin-bottom: 36px; }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; position: relative; }
+.step::before { counter-increment: step; content: counter(step); position: absolute; top: -12px; left: 16px; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 700; display: grid; place-items: center; }
+.step h4 { margin: 6px 0 6px; font-size: 16px; }
+.step p { margin: 0; color: var(--muted); font-size: 14px; }
+.step code { font-size: 12.5px; color: var(--ink); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+@media (max-width: 860px) { .loop { grid-template-columns: 1fr 1fr; row-gap: 26px; } }
+@media (max-width: 520px) { .loop { grid-template-columns: 1fr; } }
+.code-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+@media (max-width: 860px) { .code-grid { grid-template-columns: minmax(0, 1fr); } }
+pre { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; overflow-x: auto; font-size: 13px; line-height: 1.6; }
+pre .k { color: var(--accent); }
+pre .t { color: var(--warm); }
+pre .c { color: var(--muted); }
+.file { font-size: 12px; color: var(--muted); margin-bottom: 6px; font-family: "JetBrains Mono", monospace; }
+
+/* ===== Cards ===== */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+.card h4 { margin: 0; font-size: 17px; }
+.card p { margin: 0; color: var(--muted); font-size: 14px; }
+.tag { align-self: flex-start; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--muted); }
+.tag.search { background: var(--accent-soft); color: var(--ink); }
+.tag.wip { color: var(--warm); }
+.card .where { font-size: 12px; font-family: "JetBrains Mono", monospace; color: var(--muted); margin-top: auto; padding-top: 6px; }
+.subhead { font-size: 20px; margin: 44px 0 14px; letter-spacing: -.01em; }
+
+/* ===== Run ===== */
+.run-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 860px) { .run-grid { grid-template-columns: minmax(0, 1fr); } }
+.todo { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.todo li { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; display: flex; gap: 10px; align-items: center; }
+.todo li::before { content: ""; width: 14px; height: 14px; border: 2px solid var(--muted); border-radius: 4px; flex: none; }
+
+footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>AIWorld</a>
+    <div class="nav-links">
+      <a href="#demos">Demos</a>
+      <a href="#how" class="hide-sm">How it works</a>
+      <a href="#agents" class="hide-sm">Agents</a>
+      <a href="#run" class="hide-sm">Run it</a>
+      <a href="https://github.com/NikitaUlianov123/AIWorld">GitHub</a>
+      <button class="icon-btn" id="themeBtn" aria-label="Toggle color theme" title="Toggle theme">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap hero-inner">
+    <span class="eyebrow">C# · .NET 8 · Work in progress</span>
+    <h1>AI<em>World</em></h1>
+    <p class="lead">A modular playground for AI. Plug any agent into any environment: search algorithms, expectimax and Q-learning, all through one small set of interfaces.</p>
+    <div class="cta">
+      <a class="btn primary" href="#demos">Try the live demos</a>
+      <a class="btn" href="https://github.com/NikitaUlianov123/AIWorld">View the source</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>7</b><span>working agents</span></div>
+      <div class="stat"><b>3</b><span>game environments</span></div>
+      <div class="stat"><b>4</b><span>core interfaces</span></div>
+      <div class="stat"><b>1</b><span>shared runner loop</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ===== Demos ===================================================== -->
+<section class="block" id="demos">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Live demos</div>
+      <h2>Watch the agents think</h2>
+      <p>Each demo is a JavaScript port of an agent and environment from the repo, so it runs in your browser. The C# projects in the repo are the source of these rules.</p>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-panel="p-puzzle">8-Puzzle search</button>
+      <button class="tab" role="tab" aria-selected="false" data-panel="p-cheese">Cheese Q-learning</button>
+      <button class="tab" role="tab" aria-selected="false" data-panel="p-ttt">Chancy Tic-Tac-Toe</button>
+      <button class="tab" role="tab" aria-selected="false" data-panel="p-markov">Markov text</button>
+    </div>
+
+    <!-- 8-puzzle -->
+    <div class="panel active" id="p-puzzle" role="tabpanel">
+      <div class="demo">
+        <div class="demo-stage">
+          <div class="board8" id="board8"></div>
+          <div class="status" id="pStatus">Click a tile next to the gap to move it.</div>
+        </div>
+        <div class="demo-side">
+          <h3>Search through states</h3>
+          <p>The full-information agents generate the whole path before they make a move. They expand states from a priority-queue frontier until they reach the goal, then replay the path. Shuffle the board, pick an algorithm and compare.</p>
+          <div class="row">
+            <div class="seg" id="algoSeg">
+              <button aria-pressed="false" data-algo="bfs">BFS</button>
+              <button aria-pressed="false" data-algo="dfs">DFS</button>
+              <button aria-pressed="true" data-algo="astar">A*</button>
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn small" id="pShuffle">Shuffle</button>
+            <button class="btn small" id="pHard">Repo start state</button>
+            <button class="btn small primary" id="pSolve">Solve</button>
+            <button class="btn small" id="pCompare">Compare all</button>
+          </div>
+          <div class="metrics">
+            <div class="metric"><span>States expanded</span><b id="mExp">–</b></div>
+            <div class="metric"><span>Path length</span><b id="mPath">–</b></div>
+            <div class="metric"><span>Search time</span><b id="mTime">–</b></div>
+          </div>
+          <div class="bars" id="pBars" hidden></div>
+          <p class="note">A* here uses Manhattan distance. The repo's <code>EightState.Score</code> uses a similar distance heuristic with an extra top-row penalty. DFS finds <em>a</em> path, not a short one.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- cheese -->
+    <div class="panel" id="p-cheese" role="tabpanel">
+      <div class="demo">
+        <div class="demo-stage">
+          <canvas id="cheeseCanvas" width="420" height="420" aria-label="Cheese grid world with Q-values"></canvas>
+          <div class="legend">
+            <span><i style="background: var(--good)"></i>high value</span>
+            <span><i style="background: var(--bad)"></i>low value</span>
+            <span>🐭 mouse · 🧀 cheese · 🔥 fire pit</span>
+          </div>
+          <p class="note" style="margin:0">Click a cell to toggle a fire pit or a wall.</p>
+        </div>
+        <div class="demo-side">
+          <h3>Learning on a slippery floor</h3>
+          <p>The mouse does not know the rules. A Q-learning agent tries moves, gets rewards, and slowly learns which action is best in each cell. Moves are not reliable: 80% go where intended, 10% slip to each side. Arrows show the current best action.</p>
+          <div class="row">
+            <div class="seg" id="layoutSeg">
+              <button aria-pressed="true" data-layout="classic">Repo 6×6</button>
+              <button aria-pressed="false" data-layout="pits">Fire-pit 10×10</button>
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn small primary" id="cRun">Run</button>
+            <button class="btn small" id="cStep">Step</button>
+            <button class="btn small" id="cReset">Forget everything</button>
+          </div>
+          <div class="slider"><label for="cEps">Epsilon</label><input type="range" id="cEps" min="0" max="1" step="0.01" value="0.3"><output id="cEpsO">0.30</output></div>
+          <div class="slider"><label for="cLr">Learning rate</label><input type="range" id="cLr" min="0.005" max="1" step="0.005" value="0.2"><output id="cLrO">0.20</output></div>
+          <div class="slider"><label for="cGamma">Discount</label><input type="range" id="cGamma" min="0" max="1" step="0.01" value="0.95"><output id="cGammaO">0.95</output></div>
+          <div class="slider"><label for="cSpeed">Speed</label><input type="range" id="cSpeed" min="0" max="5" step="1" value="2"><output id="cSpeedO">60/s</output></div>
+          <div class="metrics">
+            <div class="metric"><span>Episodes</span><b id="cEp">0</b></div>
+            <div class="metric"><span>Cheese rate (last 50)</span><b id="cRate">–</b></div>
+            <div class="metric"><span>Total steps</span><b id="cSteps">0</b></div>
+          </div>
+          <canvas id="cheeseChart" aria-label="Cheese rate over episodes"></canvas>
+          <p class="note">Rewards follow <code>CheeseState.Score</code>: cheese +1000, fire pit or leaving the grid −1000, wall −15, and −1 for each step. The repo default learning rate is 0.005; the demo starts higher so you can see it learn fast.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- tic tac toe -->
+    <div class="panel" id="p-ttt" role="tabpanel">
+      <div class="demo">
+        <div class="demo-stage">
+          <div class="ttt" id="ttt"></div>
+          <div class="status" id="tStatus"></div>
+        </div>
+        <div class="demo-side">
+          <h3>Tic-Tac-Toe with bad aim</h3>
+          <p>Each square has a chance to hit: corners 50%, edges 100%, center only 25%. A miss places nothing and you lose your turn, but your next attempt always hits. The AI uses expectimax: it averages over every possible hit and miss and plays the move with the best expected result.</p>
+          <div class="row">
+            <div class="seg" id="modeSeg">
+              <button aria-pressed="true" data-mode="human">You go first</button>
+              <button aria-pressed="false" data-mode="ai">AI goes first</button>
+              <button aria-pressed="false" data-mode="auto">AI vs AI</button>
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn small primary" id="tNew">New game</button>
+            <label class="row" style="gap:6px;font-size:14px;color:var(--muted)"><input type="checkbox" id="tHints" checked> Show expected values</label>
+          </div>
+          <div class="metrics">
+            <div class="metric"><span>X wins</span><b id="sX">0</b></div>
+            <div class="metric"><span>O wins</span><b id="sO">0</b></div>
+            <div class="metric"><span>Ties</span><b id="sT">0</b></div>
+          </div>
+          <p class="note">Numbers in the bottom corner of each square are the expected score of that move for the player whose turn it is, from −1 (sure loss) to +1 (sure win).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- markov -->
+    <div class="panel" id="p-markov" role="tabpanel">
+      <div class="demo">
+        <div class="demo-stage">
+          <div class="story" id="story"></div>
+          <div class="row" style="width:100%"><span style="font-size:13px;color:var(--muted)">Words that can follow <b id="mkWord" class="mono"></b>:</span></div>
+          <div class="chips" id="mkChips" style="width:100%"></div>
+        </div>
+        <div class="demo-side">
+          <h3>StoryTime</h3>
+          <p>A word-level Markov chain from <code>Markov_Chain/StoryTime.cs</code>. For each word it records the next four words in the text. To write, it picks a random successor of the last word, again and again.</p>
+          <textarea id="mkText" aria-label="Training text"></textarea>
+          <div class="row">
+            <label for="mkSeed" style="font-size:14px;color:var(--muted)">Start word</label>
+            <input type="text" id="mkSeed" value="the">
+            <button class="btn small primary" id="mkGo">Generate</button>
+          </div>
+          <div class="slider"><label for="mkLen">Length</label><input type="range" id="mkLen" min="10" max="150" step="5" value="60"><output id="mkLenO">60</output></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== How it works ============================================== -->
+<section class="block" id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Architecture</div>
+      <h2>One loop, any agent, any world</h2>
+      <p>Agents never touch the game directly. An <code>AgentRunner</code> asks the environment for legal actions, the agent picks one, and the environment rolls the dice on the result. That is why every agent above can plug into every environment.</p>
+    </div>
+
+    <div class="loop">
+      <div class="step"><h4>Ask for actions</h4><p>The runner calls <code>environment.GetActions(id)</code> to get every legal <code>Akshun</code>.</p></div>
+      <div class="step"><h4>Agent decides</h4><p><code>agent.Move(actions)</code> returns one action. Search agents follow a pre-planned path; learners pick from their model.</p></div>
+      <div class="step"><h4>World resolves</h4><p><code>environment.MakeMove(move, id)</code> samples one <code>Successor</code> by its <code>Chance</code>.</p></div>
+      <div class="step"><h4>Agent observes</h4><p>The result goes back to the agent as its new <code>CurrentGameState</code>, an <code>ISensorReading</code>.</p></div>
+    </div>
+
+    <div class="code-grid">
+      <div>
+        <div class="file">AIWorld/IAgent.cs · IEnvironment.cs</div>
+<pre><span class="k">public interface</span> <span class="t">IAgent</span>&lt;T&gt; <span class="k">where</span> T : <span class="t">ISensorReading</span>
+{
+    <span class="t">List</span>&lt;T&gt; Visited { <span class="k">get</span>; }
+    <span class="t">IFrontier</span>&lt;T&gt; Frontier { <span class="k">get</span>; }
+    T CurrentGameState { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="t">Akshun</span>&lt;T&gt; Move(<span class="t">List</span>&lt;<span class="t">Akshun</span>&lt;T&gt;&gt; actions);
+}
+
+<span class="k">public interface</span> <span class="t">IEnvironment</span>&lt;TSensors&gt;
+{
+    <span class="k">void</span> AddAgent(<span class="k">int</span> ID, TSensors state);
+    <span class="t">List</span>&lt;<span class="t">Akshun</span>&lt;TSensors&gt;&gt; GetActions(<span class="k">int</span> agentID);
+    TSensors MakeMove(<span class="t">Akshun</span>&lt;TSensors&gt; move, <span class="k">int</span> agentID);
+}</pre>
+      </div>
+      <div>
+        <div class="file">AIWorld/IAgentState.cs</div>
+<pre><span class="k">public interface</span> <span class="t">ISensorReading</span>
+{
+    <span class="k">byte</span>[] values { <span class="k">get</span>; }
+    <span class="k">bool</span> IsTerminal { <span class="k">get</span>; }
+    <span class="k">float</span> Score { <span class="k">get</span>; }
+}
+
+<span class="c">// An action can lead to several outcomes</span>
+<span class="k">public struct</span> <span class="t">Akshun</span>&lt;T&gt;
+{
+    T Start;
+    <span class="t">List</span>&lt;<span class="t">Successor</span>&lt;T&gt;&gt; Results;
+    <span class="k">string</span> Name;
+}
+
+<span class="k">public struct</span> <span class="t">Successor</span>&lt;T&gt;
+{
+    T State; <span class="k">int</span> Cost; <span class="k">float</span> Chance;
+}</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Agents & environments ====================================== -->
+<section class="block" id="agents">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">The roster</div>
+      <h2>Agents and environments</h2>
+      <p>All agents live in <code>AIWorld/IAgent.cs</code>. Each environment is its own project in the solution.</p>
+    </div>
+
+    <div class="cards">
+      <div class="card"><span class="tag search">Search</span><h4>Breadth-First Search</h4><p>Expands states level by level. Finds the path with the fewest moves.</p><div class="where">BFSAgent&lt;T&gt;</div></div>
+      <div class="card"><span class="tag search">Search</span><h4>Depth-First Search</h4><p>Dives down one branch before it backs up. Fast to find a path, but the path can be very long.</p><div class="where">DFSAgent&lt;T&gt;</div></div>
+      <div class="card"><span class="tag search">Search</span><h4>Uniform-Cost Search</h4><p>Expands states in order of path cost.</p><div class="where">UCSAgent&lt;T&gt;</div></div>
+      <div class="card"><span class="tag search">Search</span><h4>A*</h4><p>Orders the frontier by cost plus the state's heuristic <code>Score</code>. Solves the 8-puzzle in the MonoGame project.</p><div class="where">AStarAgent&lt;T&gt;</div></div>
+      <div class="card"><span class="tag">Adversarial</span><h4>ExpectiMax</h4><p>Builds the full game tree, with chance nodes for moves that can fail. Plays Chancy Tic-Tac-Toe.</p><div class="where">ExpectiMax&lt;T&gt;</div></div>
+      <div class="card"><span class="tag">Learning</span><h4>Q-Learning</h4><p>Learns a value for each state and action from rewards, with epsilon-greedy exploration. Plays the Cheese puzzle.</p><div class="where">QAgent&lt;T&gt;</div></div>
+      <div class="card"><span class="tag">Control</span><h4>Bogo</h4><p>Picks a random legal action every turn. A baseline to compare the others against.</p><div class="where">BogoAgent&lt;T&gt;</div></div>
+      <div class="card"><span class="tag wip">In progress</span><h4>Markov Agent</h4><p>An agent that models state transitions. Its <code>Move</code> is not implemented yet.</p><div class="where">MarkovAgent&lt;T&gt;</div></div>
+    </div>
+
+    <h3 class="subhead">Environments</h3>
+    <div class="cards">
+      <div class="card"><span class="tag">MonoGame</span><h4>8 Puzzle</h4><p>Slide numbered tiles into order. A deterministic search problem with 181,440 reachable states.</p><div class="where">8PuzzleGame/</div></div>
+      <div class="card"><span class="tag">WinForms + MonoGame</span><h4>Cheese Puzzle</h4><p>A grid world. The mouse must reach the cheese and avoid pits and edges, on a floor where moves can slip. Shows Q-values live, with sliders.</p><div class="where">CheesePuzzle/</div></div>
+      <div class="card"><span class="tag">Console</span><h4>Chancy Tic-Tac-Toe</h4><p>Each square has a hit chance. A miss costs the turn. A game of luck and risk.</p><div class="where">TicTacChance/</div></div>
+      <div class="card"><span class="tag">Console</span><h4>Markov Chain</h4><p>Learns word successors from a text and generates new text from them.</p><div class="where">Markov_Chain/</div></div>
+      <div class="card"><span class="tag wip">In progress</span><h4>CSP</h4><p>A constraint satisfaction setup: color 27 regions with 3 colors so that no neighbors match.</p><div class="where">CSP/</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Run it ===================================================== -->
+<section class="block" id="run">
+  <div class="wrap run-grid">
+    <div>
+      <div class="section-head">
+        <div class="kicker">Run it locally</div>
+        <h2>Clone and play</h2>
+        <p>You need the .NET 8 SDK. The Cheese Puzzle uses WinForms, so it runs on Windows only. You can also open <code>AIWorld.sln</code> in Visual Studio and choose a startup project.</p>
+      </div>
+<pre><span class="c"># get the code</span>
+git clone https://github.com/NikitaUlianov123/AIWorld.git
+cd AIWorld
+
+<span class="c"># expectimax plays chancy tic-tac-toe</span>
+dotnet run --project TicTacChance
+
+<span class="c"># A* solves the 8 puzzle (MonoGame window)</span>
+dotnet run --project 8PuzzleGame
+
+<span class="c"># Q-learning mouse (Windows)</span>
+dotnet run --project CheesePuzzle</pre>
+    </div>
+    <div>
+      <div class="section-head" style="margin-bottom:18px">
+        <div class="kicker">From ToDo.txt</div>
+        <h2>Ideas on the list</h2>
+      </div>
+      <ul class="todo">
+        <li>Markov decision process (MDP), then the Cheese game with it</li>
+        <li>Deep Q-learning, then the games with it</li>
+        <li>Multiple agents in one environment</li>
+        <li>Unification</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>AIWorld · MIT License</span>
+    <a href="https://github.com/NikitaUlianov123/AIWorld">github.com/NikitaUlianov123/AIWorld</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function fmt(n) {
+    return n.toLocaleString("en-US");
+  }
+
+  // ===== Theme =============================================================
+  const themeListeners = [];
+  function onTheme(fn) {
+    themeListeners.push(fn);
+  }
+  function fireTheme() {
+    for (const fn of themeListeners) {
+      fn();
+    }
+  }
+  try {
+    const saved = localStorage.getItem("aiworld-theme");
+    if (saved === "light" || saved === "dark") {
+      document.documentElement.setAttribute("data-theme", saved);
+    }
+  } catch (e) { /* storage unavailable */ }
+  document.getElementById("themeBtn").addEventListener("click", function () {
+    const root = document.documentElement;
+    let current = root.getAttribute("data-theme");
+    if (!current) {
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        current = "dark";
+      } else {
+        current = "light";
+      }
+    }
+    let next = "dark";
+    if (current === "dark") {
+      next = "light";
+    }
+    root.setAttribute("data-theme", next);
+    try {
+      localStorage.setItem("aiworld-theme", next);
+    } catch (e) { /* storage unavailable */ }
+    fireTheme();
+  });
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", fireTheme);
+
+  // ===== Tabs ==============================================================
+  const tabs = document.querySelectorAll(".tab");
+  for (const tab of tabs) {
+    tab.addEventListener("click", function () {
+      for (const t of tabs) {
+        t.setAttribute("aria-selected", String(t === tab));
+        document.getElementById(t.dataset.panel).classList.toggle("active", t === tab);
+      }
+      if (tab.dataset.panel === "p-cheese") {
+        Cheese.draw();
+        Cheese.drawChart();
+      }
+    });
+  }
+
+  function bindSeg(id, attr, fn) {
+    const seg = document.getElementById(id);
+    const buttons = seg.querySelectorAll("button");
+    for (const b of buttons) {
+      b.addEventListener("click", function () {
+        for (const o of buttons) {
+          o.setAttribute("aria-pressed", String(o === b));
+        }
+        fn(b.dataset[attr]);
+      });
+    }
+  }
+
+  // ===== Hero background: a BFS wavefront ==================================
+  const Hero = (function () {
+    const canvas = document.getElementById("heroCanvas");
+    const ctx = canvas.getContext("2d");
+    const cell = 28;
+    let cols = 0;
+    let rows = 0;
+    let dist = [];
+    let walls = [];
+    let frontierDepth = 0;
+    let maxDepth = 0;
+    let color = "";
+
+    function resize() {
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      cols = Math.ceil(w / cell);
+      rows = Math.ceil(h / cell);
+      color = cssVar("--accent");
+      seed();
+    }
+
+    function seed() {
+      const n = cols * rows;
+      walls = new Array(n);
+      for (let i = 0; i < n; i++) {
+        walls[i] = Math.random() < 0.22;
+      }
+      const start = Math.floor(Math.random() * n);
+      walls[start] = false;
+      dist = new Array(n).fill(-1);
+      dist[start] = 0;
+      const queue = [start];
+      let head = 0;
+      maxDepth = 0;
+      while (head < queue.length) {
+        const cur = queue[head];
+        head++;
+        const r = Math.floor(cur / cols);
+        const c = cur % cols;
+        const nbrs = [[r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]];
+        for (const [nr, nc] of nbrs) {
+          if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) {
+            continue;
+          }
+          const ni = nr * cols + nc;
+          if (walls[ni] || dist[ni] !== -1) {
+            continue;
+          }
+          dist[ni] = dist[cur] + 1;
+          maxDepth = Math.max(maxDepth, dist[ni]);
+          queue.push(ni);
+        }
+      }
+      frontierDepth = 0;
+    }
+
+    function draw() {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = color;
+      for (let i = 0; i < dist.length; i++) {
+        const d = dist[i];
+        if (d < 0 || d > frontierDepth) {
+          continue;
+        }
+        const age = frontierDepth - d;
+        let alpha = 0.05;
+        if (age < 6) {
+          alpha = 0.05 + (6 - age) * 0.045;
+        }
+        ctx.globalAlpha = alpha;
+        const r = Math.floor(i / cols);
+        const c = i % cols;
+        ctx.fillRect(c * cell + 3, r * cell + 3, cell - 6, cell - 6);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    let last = 0;
+    function tick(t) {
+      if (t - last > 70) {
+        last = t;
+        frontierDepth++;
+        if (frontierDepth > maxDepth + 30) {
+          seed();
+        }
+        draw();
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function start() {
+      resize();
+      window.addEventListener("resize", resize);
+      onTheme(function () {
+        color = cssVar("--accent");
+        draw();
+      });
+      if (reduceMotion) {
+        frontierDepth = maxDepth;
+        draw();
+      } else {
+        requestAnimationFrame(tick);
+      }
+    }
+    return { start: start };
+  })();
+  Hero.start();
+
+  // ===== 8-Puzzle ==========================================================
+  const Puzzle = (function () {
+    const GOAL = "123456780";
+    const REPO_START = "725183640";
+    const MAX_EXPANSIONS = 250000;
+    const boardEl = document.getElementById("board8");
+    const statusEl = document.getElementById("pStatus");
+    let state = GOAL;
+    let algo = "astar";
+    let playing = null;
+    const tileEls = {};
+
+    for (let v = 1; v <= 8; v++) {
+      const el = document.createElement("div");
+      el.className = "t8";
+      el.textContent = String(v);
+      el.addEventListener("click", function () {
+        if (playing) {
+          return;
+        }
+        const i = state.indexOf(String(v));
+        if (isAdjacent(i, state.indexOf("0"))) {
+          setState(swapWithBlank(state, i));
+          if (state === GOAL) {
+            statusEl.textContent = "Solved!";
+          } else {
+            statusEl.textContent = "Your move. Or press Solve.";
+          }
+        }
+      });
+      boardEl.appendChild(el);
+      tileEls[v] = el;
+    }
+
+    function isAdjacent(a, b) {
+      const dr = Math.abs(Math.floor(a / 3) - Math.floor(b / 3));
+      const dc = Math.abs((a % 3) - (b % 3));
+      return dr + dc === 1;
+    }
+
+    function swapWithBlank(s, i) {
+      const b = s.indexOf("0");
+      const a = s.split("");
+      a[b] = a[i];
+      a[i] = "0";
+      return a.join("");
+    }
+
+    function neighbors(s) {
+      const b = s.indexOf("0");
+      const r = Math.floor(b / 3);
+      const c = b % 3;
+      const out = [];
+      const moves = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+      for (const [dr, dc] of moves) {
+        const nr = r + dr;
+        const nc = c + dc;
+        if (nr < 0 || nr > 2 || nc < 0 || nc > 2) {
+          continue;
+        }
+        out.push(swapWithBlank(s, nr * 3 + nc));
+      }
+      return out;
+    }
+
+    function manhattan(s) {
+      let d = 0;
+      for (let i = 0; i < 9; i++) {
+        const v = s.charCodeAt(i) - 48;
+        if (v === 0) {
+          continue;
+        }
+        const g = v - 1;
+        d += Math.abs(Math.floor(i / 3) - Math.floor(g / 3)) + Math.abs((i % 3) - (g % 3));
+      }
+      return d;
+    }
+
+    function render() {
+      for (let i = 0; i < 9; i++) {
+        const v = state.charCodeAt(i) - 48;
+        if (v === 0) {
+          continue;
+        }
+        const el = tileEls[v];
+        const r = Math.floor(i / 3);
+        const c = i % 3;
+        el.style.left = "calc(9px + " + c + " * ((100% - 12px) / 3))";
+        el.style.top = "calc(9px + " + r + " * ((100% - 12px) / 3))";
+      }
+    }
+
+    function setState(s) {
+      state = s;
+      render();
+    }
+
+    function buildPath(parent, end) {
+      const path = [];
+      let cur = end;
+      while (cur !== null) {
+        path.push(cur);
+        cur = parent.get(cur);
+      }
+      path.reverse();
+      return path;
+    }
+
+    function bfs(start) {
+      const parent = new Map();
+      parent.set(start, null);
+      const queue = [start];
+      let head = 0;
+      let expanded = 0;
+      while (head < queue.length) {
+        const cur = queue[head];
+        head++;
+        expanded++;
+        if (cur === GOAL) {
+          return { path: buildPath(parent, cur), expanded: expanded };
+        }
+        if (expanded > MAX_EXPANSIONS) {
+          break;
+        }
+        for (const n of neighbors(cur)) {
+          if (!parent.has(n)) {
+            parent.set(n, cur);
+            queue.push(n);
+          }
+        }
+      }
+      return { path: null, expanded: expanded };
+    }
+
+    function dfs(start) {
+      const parent = new Map();
+      parent.set(start, null);
+      const visited = new Set();
+      const stack = [start];
+      let expanded = 0;
+      while (stack.length > 0) {
+        const cur = stack.pop();
+        if (visited.has(cur)) {
+          continue;
+        }
+        visited.add(cur);
+        expanded++;
+        if (cur === GOAL) {
+          return { path: buildPath(parent, cur), expanded: expanded };
+        }
+        if (expanded > MAX_EXPANSIONS) {
+          break;
+        }
+        for (const n of neighbors(cur)) {
+          if (!visited.has(n)) {
+            parent.set(n, cur);
+            stack.push(n);
+          }
+        }
+      }
+      return { path: null, expanded: expanded };
+    }
+
+    function astar(start) {
+      const heap = [];
+      let counter = 0;
+      function less(a, b) {
+        if (a.f !== b.f) {
+          return a.f < b.f;
+        }
+        return a.n < b.n;
+      }
+      function push(item) {
+        heap.push(item);
+        let i = heap.length - 1;
+        while (i > 0) {
+          const p = (i - 1) >> 1;
+          if (!less(heap[i], heap[p])) {
+            break;
+          }
+          const tmp = heap[i];
+          heap[i] = heap[p];
+          heap[p] = tmp;
+          i = p;
+        }
+      }
+      function pop() {
+        const top = heap[0];
+        const end = heap.pop();
+        if (heap.length > 0) {
+          heap[0] = end;
+          let i = 0;
+          while (true) {
+            const l = i * 2 + 1;
+            const r = l + 1;
+            let m = i;
+            if (l < heap.length && less(heap[l], heap[m])) {
+              m = l;
+            }
+            if (r < heap.length && less(heap[r], heap[m])) {
+              m = r;
+            }
+            if (m === i) {
+              break;
+            }
+            const tmp = heap[i];
+            heap[i] = heap[m];
+            heap[m] = tmp;
+            i = m;
+          }
+        }
+        return top;
+      }
+      const g = new Map();
+      const parent = new Map();
+      const closed = new Set();
+      g.set(start, 0);
+      parent.set(start, null);
+      push({ s: start, f: manhattan(start), n: counter++ });
+      let expanded = 0;
+      while (heap.length > 0) {
+        const item = pop();
+        const cur = item.s;
+        if (closed.has(cur)) {
+          continue;
+        }
+        closed.add(cur);
+        expanded++;
+        if (cur === GOAL) {
+          return { path: buildPath(parent, cur), expanded: expanded };
+        }
+        if (expanded > MAX_EXPANSIONS) {
+          break;
+        }
+        const gc = g.get(cur) + 1;
+        for (const n of neighbors(cur)) {
+          if (closed.has(n)) {
+            continue;
+          }
+          if (!g.has(n) || gc < g.get(n)) {
+            g.set(n, gc);
+            parent.set(n, cur);
+            push({ s: n, f: gc + manhattan(n), n: counter++ });
+          }
+        }
+      }
+      return { path: null, expanded: expanded };
+    }
+
+    const SOLVERS = { bfs: bfs, dfs: dfs, astar: astar };
+    const NAMES = { bfs: "BFS", dfs: "DFS", astar: "A*" };
+
+    function run(which) {
+      const t0 = performance.now();
+      const res = SOLVERS[which](state);
+      res.ms = performance.now() - t0;
+      return res;
+    }
+
+    function showMetrics(res) {
+      document.getElementById("mExp").textContent = fmt(res.expanded);
+      if (res.path) {
+        document.getElementById("mPath").textContent = fmt(res.path.length - 1);
+      } else {
+        document.getElementById("mPath").textContent = "–";
+      }
+      document.getElementById("mTime").textContent = res.ms.toFixed(0) + " ms";
+    }
+
+    function stop() {
+      if (playing) {
+        clearInterval(playing);
+        playing = null;
+      }
+    }
+
+    function play(path) {
+      stop();
+      let i = 1;
+      let delay = 220;
+      if (path.length > 200) {
+        delay = 15;
+      } else if (path.length > 60) {
+        delay = 60;
+      }
+      playing = setInterval(function () {
+        if (i >= path.length) {
+          stop();
+          statusEl.textContent = "Solved in " + fmt(path.length - 1) + " moves.";
+          return;
+        }
+        setState(path[i]);
+        statusEl.textContent = "Move " + fmt(i) + " of " + fmt(path.length - 1);
+        i++;
+      }, delay);
+    }
+
+    function solve() {
+      stop();
+      document.getElementById("pBars").hidden = true;
+      if (state === GOAL) {
+        statusEl.textContent = "Already solved. Shuffle first.";
+        return;
+      }
+      const res = run(algo);
+      showMetrics(res);
+      if (!res.path) {
+        statusEl.textContent = NAMES[algo] + " gave up after " + fmt(res.expanded) + " states.";
+        return;
+      }
+      play(res.path);
+    }
+
+    function compare() {
+      stop();
+      if (state === GOAL) {
+        statusEl.textContent = "Already solved. Shuffle first.";
+        return;
+      }
+      const results = [];
+      let maxExp = 1;
+      for (const key of ["bfs", "dfs", "astar"]) {
+        const res = run(key);
+        results.push({ key: key, res: res });
+        maxExp = Math.max(maxExp, res.expanded);
+      }
+      const bars = document.getElementById("pBars");
+      bars.innerHTML = "";
+      const title = document.createElement("div");
+      title.style.fontSize = "13px";
+      title.style.color = "var(--muted)";
+      title.textContent = "States expanded (log scale) and path length";
+      bars.appendChild(title);
+      for (const item of results) {
+        const row = document.createElement("div");
+        row.className = "bar-row";
+        const label = document.createElement("b");
+        label.textContent = NAMES[item.key];
+        const track = document.createElement("div");
+        track.className = "bar-track";
+        const fill = document.createElement("div");
+        fill.className = "bar-fill";
+        fill.style.width = (Math.log10(item.res.expanded + 1) / Math.log10(maxExp + 1) * 100) + "%";
+        fill.style.opacity = "0.35";
+        const text = document.createElement("em");
+        let pathText = "no path";
+        if (item.res.path) {
+          pathText = fmt(item.res.path.length - 1) + " moves";
+        }
+        text.textContent = fmt(item.res.expanded) + " states · " + pathText;
+        track.appendChild(fill);
+        track.appendChild(text);
+        row.appendChild(label);
+        row.appendChild(track);
+        bars.appendChild(row);
+      }
+      bars.hidden = false;
+      statusEl.textContent = "Compared on the same board.";
+    }
+
+    function shuffle() {
+      stop();
+      document.getElementById("pBars").hidden = true;
+      let s = GOAL;
+      let prev = null;
+      const steps = 30 + Math.floor(Math.random() * 30);
+      for (let i = 0; i < steps; i++) {
+        const opts = neighbors(s).filter(function (n) { return n !== prev; });
+        prev = s;
+        s = opts[Math.floor(Math.random() * opts.length)];
+      }
+      setState(s);
+      statusEl.textContent = "Shuffled. Pick an algorithm and press Solve.";
+    }
+
+    document.getElementById("pShuffle").addEventListener("click", shuffle);
+    document.getElementById("pHard").addEventListener("click", function () {
+      stop();
+      document.getElementById("pBars").hidden = true;
+      setState(REPO_START);
+      statusEl.textContent = "The start state from 8PuzzleGame/Game1.cs.";
+    });
+    document.getElementById("pSolve").addEventListener("click", solve);
+    document.getElementById("pCompare").addEventListener("click", compare);
+    bindSeg("algoSeg", "algo", function (a) {
+      algo = a;
+    });
+
+    setState(GOAL);
+    shuffle();
+    return {};
+  })();
+
+  // ===== Cheese Q-learning =================================================
+  const Cheese = (function () {
+    const EMPTY = 0;
+    const WALL = 1;
+    const CHEESE = 2;
+    const PIT = 3;
+    const ARROWS = ["↑", "↓", "←", "→"];
+    // [intended, slip, slip] as (dx, dy); matches CheeseEnvironment.GetActions
+    const OUTCOMES = [
+      [[0, -1, 0.8], [1, 0, 0.1], [-1, 0, 0.1]],
+      [[0, 1, 0.8], [1, 0, 0.1], [-1, 0, 0.1]],
+      [[-1, 0, 0.8], [0, 1, 0.1], [0, -1, 0.1]],
+      [[1, 0, 0.8], [0, 1, 0.1], [0, -1, 0.1]]
+    ];
+    const SPEEDS = [4, 15, 60, 600, 6000, 60000];
+    const SPEED_LABELS = ["4/s", "15/s", "60/s", "600/s", "6k/s", "60k/s"];
+    const MAX_EPISODE = 300;
+
+    const canvas = document.getElementById("cheeseCanvas");
+    const ctx = canvas.getContext("2d");
+    const chart = document.getElementById("cheeseChart");
+    const cctx = chart.getContext("2d");
+
+    let W = 6;
+    let H = 6;
+    let grid = [];
+    let start = { x: 1, y: 1 };
+    let mouse = { x: 1, y: 1 };
+    let Q = new Float64Array(0);
+    let eps = 0.3;
+    let lr = 0.2;
+    let gamma = 0.95;
+    let speed = 2;
+    let running = false;
+    let episodes = 0;
+    let totalSteps = 0;
+    let epSteps = 0;
+    let outcomes = [];
+    let rates = [];
+    let acc = 0;
+    let lastT = 0;
+
+    function load(layout) {
+      if (layout === "pits") {
+        W = 10;
+        H = 10;
+        grid = new Array(W * H).fill(EMPTY);
+        grid[2 * W + 7] = CHEESE;
+        for (let x = 0; x <= 5; x++) {
+          grid[4 * W + x] = PIT;
+        }
+        start = { x: 0, y: 0 };
+      } else {
+        W = 6;
+        H = 6;
+        grid = new Array(W * H).fill(EMPTY);
+        grid[4 * W + 3] = CHEESE;
+        start = { x: 1, y: 1 };
+      }
+      reset();
+    }
+
+    function reset() {
+      Q = new Float64Array(W * H * 4);
+      mouse = { x: start.x, y: start.y };
+      episodes = 0;
+      totalSteps = 0;
+      epSteps = 0;
+      outcomes = [];
+      rates = [];
+      updateMetrics();
+      draw();
+      drawChart();
+    }
+
+    function inBounds(x, y) {
+      return x >= 0 && x < W && y >= 0 && y < H;
+    }
+
+    function reward(x, y) {
+      if (!inBounds(x, y)) {
+        return { r: -1000 - 1, terminal: true, kind: "out" };
+      }
+      const t = grid[y * W + x];
+      if (t === CHEESE) {
+        return { r: 1000 - 1, terminal: true, kind: "cheese" };
+      }
+      if (t === PIT) {
+        return { r: -1000 - 1, terminal: true, kind: "pit" };
+      }
+      if (t === WALL) {
+        return { r: -15 - 1, terminal: true, kind: "wall" };
+      }
+      return { r: -1, terminal: false, kind: "step" };
+    }
+
+    function maxQ(x, y) {
+      const base = (y * W + x) * 4;
+      let best = Q[base];
+      for (let a = 1; a < 4; a++) {
+        if (Q[base + a] > best) {
+          best = Q[base + a];
+        }
+      }
+      return best;
+    }
+
+    function bestAction(x, y) {
+      const base = (y * W + x) * 4;
+      let best = 0;
+      let ties = [0];
+      for (let a = 1; a < 4; a++) {
+        if (Q[base + a] > Q[base + best]) {
+          best = a;
+          ties = [a];
+        } else if (Q[base + a] === Q[base + best]) {
+          ties.push(a);
+        }
+      }
+      return ties[Math.floor(Math.random() * ties.length)];
+    }
+
+    function step() {
+      let a = 0;
+      if (Math.random() < eps) {
+        a = Math.floor(Math.random() * 4);
+      } else {
+        a = bestAction(mouse.x, mouse.y);
+      }
+      const roll = Math.random();
+      let threshold = 0;
+      let nx = mouse.x;
+      let ny = mouse.y;
+      for (const [dx, dy, p] of OUTCOMES[a]) {
+        threshold += p;
+        if (roll < threshold) {
+          nx = mouse.x + dx;
+          ny = mouse.y + dy;
+          break;
+        }
+      }
+      const res = reward(nx, ny);
+      let future = 0;
+      if (!res.terminal) {
+        future = maxQ(nx, ny);
+      }
+      const idx = (mouse.y * W + mouse.x) * 4 + a;
+      Q[idx] = Q[idx] + lr * (res.r + gamma * future - Q[idx]);
+      totalSteps++;
+      epSteps++;
+      if (res.terminal || epSteps >= MAX_EPISODE) {
+        endEpisode(res.kind === "cheese");
+      } else {
+        mouse = { x: nx, y: ny };
+      }
+    }
+
+    function endEpisode(success) {
+      episodes++;
+      epSteps = 0;
+      outcomes.push(success);
+      if (outcomes.length > 50) {
+        outcomes.shift();
+      }
+      let wins = 0;
+      for (const o of outcomes) {
+        if (o) {
+          wins++;
+        }
+      }
+      rates.push(wins / outcomes.length);
+      if (rates.length > 400) {
+        rates = rates.filter(function (_, i) { return i % 2 === 0; });
+      }
+      mouse = { x: start.x, y: start.y };
+    }
+
+    function updateMetrics() {
+      document.getElementById("cEp").textContent = fmt(episodes);
+      document.getElementById("cSteps").textContent = fmt(totalSteps);
+      if (rates.length > 0) {
+        document.getElementById("cRate").textContent = Math.round(rates[rates.length - 1] * 100) + "%";
+      } else {
+        document.getElementById("cRate").textContent = "–";
+      }
+    }
+
+    function mix(c1, c2, t) {
+      const a = parseColor(c1);
+      const b = parseColor(c2);
+      const r = Math.round(a[0] + (b[0] - a[0]) * t);
+      const g = Math.round(a[1] + (b[1] - a[1]) * t);
+      const bl = Math.round(a[2] + (b[2] - a[2]) * t);
+      return "rgb(" + r + "," + g + "," + bl + ")";
+    }
+
+    function parseColor(hex) {
+      const h = hex.replace("#", "");
+      return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+    }
+
+    function draw() {
+      const dpr = window.devicePixelRatio || 1;
+      const size = canvas.clientWidth;
+      if (size === 0) {
+        return;
+      }
+      canvas.width = Math.floor(size * dpr);
+      canvas.height = Math.floor(size * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const cs = size / W;
+      const base = cssVar("--surface-2");
+      const good = cssVar("--good");
+      const bad = cssVar("--bad");
+      const wall = cssVar("--wall");
+      const ink = cssVar("--ink");
+      const line = cssVar("--line");
+
+      let maxAbs = 1;
+      for (let i = 0; i < W * H; i++) {
+        if (grid[i] !== EMPTY) {
+          continue;
+        }
+        const v = Math.abs(maxQ(i % W, Math.floor(i / W)));
+        if (v > maxAbs) {
+          maxAbs = v;
+        }
+      }
+
+      ctx.clearRect(0, 0, size, size);
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          const t = grid[y * W + x];
+          let fill = base;
+          if (t === WALL) {
+            fill = wall;
+          } else if (t === EMPTY) {
+            const v = maxQ(x, y);
+            const k = Math.min(1, Math.sqrt(Math.abs(v) / maxAbs)) * 0.75;
+            if (v > 0) {
+              fill = mix(base, good, k);
+            } else if (v < 0) {
+              fill = mix(base, bad, k);
+            }
+          }
+          ctx.fillStyle = fill;
+          ctx.fillRect(x * cs + 1, y * cs + 1, cs - 2, cs - 2);
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          if (t === CHEESE) {
+            ctx.font = Math.floor(cs * 0.55) + "px serif";
+            ctx.fillText("🧀", x * cs + cs / 2, y * cs + cs / 2);
+          } else if (t === PIT) {
+            ctx.font = Math.floor(cs * 0.55) + "px serif";
+            ctx.fillText("🔥", x * cs + cs / 2, y * cs + cs / 2);
+          } else if (t === EMPTY) {
+            const qb = (y * W + x) * 4;
+            const seen = Q[qb] !== 0 || Q[qb + 1] !== 0 || Q[qb + 2] !== 0 || Q[qb + 3] !== 0;
+            if (seen && !(mouse.x === x && mouse.y === y)) {
+              let b = 0;
+              for (let a = 1; a < 4; a++) {
+                if (Q[qb + a] > Q[qb + b]) {
+                  b = a;
+                }
+              }
+              ctx.fillStyle = ink;
+              ctx.globalAlpha = 0.7;
+              ctx.font = "600 " + Math.floor(cs * 0.36) + "px 'Space Grotesk', sans-serif";
+              ctx.fillText(ARROWS[b], x * cs + cs / 2, y * cs + cs / 2);
+              ctx.globalAlpha = 1;
+            }
+          }
+          if (x === start.x && y === start.y) {
+            ctx.strokeStyle = line;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x * cs + 4, y * cs + 4, cs - 8, cs - 8);
+          }
+        }
+      }
+      ctx.font = Math.floor(cs * 0.6) + "px serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("🐭", mouse.x * cs + cs / 2, mouse.y * cs + cs / 2);
+    }
+
+    function drawChart() {
+      const dpr = window.devicePixelRatio || 1;
+      const w = chart.clientWidth;
+      const h = chart.clientHeight;
+      if (w === 0) {
+        return;
+      }
+      chart.width = Math.floor(w * dpr);
+      chart.height = Math.floor(h * dpr);
+      cctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      cctx.clearRect(0, 0, w, h);
+      cctx.strokeStyle = cssVar("--line");
+      cctx.lineWidth = 1;
+      cctx.beginPath();
+      cctx.moveTo(0, h - 0.5);
+      cctx.lineTo(w, h - 0.5);
+      cctx.moveTo(0, 0.5);
+      cctx.lineTo(w, 0.5);
+      cctx.stroke();
+      cctx.fillStyle = cssVar("--muted");
+      cctx.font = "11px 'Space Grotesk', sans-serif";
+      cctx.textBaseline = "top";
+      cctx.fillText("100%", 4, 4);
+      cctx.textBaseline = "bottom";
+      cctx.fillText("0%  ·  cheese rate per episode", 4, h - 4);
+      if (rates.length < 2) {
+        return;
+      }
+      cctx.strokeStyle = cssVar("--accent");
+      cctx.lineWidth = 2;
+      cctx.lineJoin = "round";
+      cctx.beginPath();
+      for (let i = 0; i < rates.length; i++) {
+        const px = (i / (rates.length - 1)) * w;
+        const py = h - 2 - rates[i] * (h - 4);
+        if (i === 0) {
+          cctx.moveTo(px, py);
+        } else {
+          cctx.lineTo(px, py);
+        }
+      }
+      cctx.stroke();
+    }
+
+    function loop(t) {
+      if (!running) {
+        return;
+      }
+      const dt = Math.min(100, t - lastT);
+      lastT = t;
+      acc += dt / 1000 * SPEEDS[speed];
+      let n = Math.floor(acc);
+      acc -= n;
+      n = Math.min(n, 5000);
+      for (let i = 0; i < n; i++) {
+        step();
+      }
+      if (n > 0) {
+        draw();
+        drawChart();
+        updateMetrics();
+      }
+      requestAnimationFrame(loop);
+    }
+
+    function setRunning(on) {
+      running = on;
+      const btn = document.getElementById("cRun");
+      if (on) {
+        btn.textContent = "Pause";
+        lastT = performance.now();
+        acc = 0;
+        requestAnimationFrame(loop);
+      } else {
+        btn.textContent = "Run";
+      }
+    }
+
+    function slider(id, outId, fn, label) {
+      const el = document.getElementById(id);
+      const out = document.getElementById(outId);
+      el.addEventListener("input", function () {
+        const v = parseFloat(el.value);
+        fn(v);
+        out.textContent = label(v);
+      });
+    }
+
+    slider("cEps", "cEpsO", function (v) { eps = v; }, function (v) { return v.toFixed(2); });
+    slider("cLr", "cLrO", function (v) { lr = v; }, function (v) { return v.toFixed(3).replace(/0$/, ""); });
+    slider("cGamma", "cGammaO", function (v) { gamma = v; }, function (v) { return v.toFixed(2); });
+    slider("cSpeed", "cSpeedO", function (v) { speed = v; }, function (v) { return SPEED_LABELS[v]; });
+
+    document.getElementById("cRun").addEventListener("click", function () {
+      setRunning(!running);
+    });
+    document.getElementById("cStep").addEventListener("click", function () {
+      setRunning(false);
+      step();
+      draw();
+      drawChart();
+      updateMetrics();
+    });
+    document.getElementById("cReset").addEventListener("click", reset);
+    bindSeg("layoutSeg", "layout", function (l) {
+      load(l);
+    });
+
+    canvas.addEventListener("click", function (e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = Math.floor((e.clientX - rect.left) / rect.width * W);
+      const y = Math.floor((e.clientY - rect.top) / rect.height * H);
+      if (!inBounds(x, y) || (x === start.x && y === start.y)) {
+        return;
+      }
+      const i = y * W + x;
+      if (grid[i] === CHEESE) {
+        return;
+      }
+      if (grid[i] === EMPTY) {
+        grid[i] = PIT;
+      } else if (grid[i] === PIT) {
+        grid[i] = WALL;
+      } else {
+        grid[i] = EMPTY;
+      }
+      if (mouse.x === x && mouse.y === y) {
+        mouse = { x: start.x, y: start.y };
+      }
+      draw();
+    });
+
+    window.addEventListener("resize", function () {
+      draw();
+      drawChart();
+    });
+    onTheme(function () {
+      draw();
+      drawChart();
+    });
+
+    load("classic");
+    return { draw: draw, drawChart: drawChart };
+  })();
+
+  // ===== Chancy Tic-Tac-Toe ================================================
+  const TicTac = (function () {
+    const CHANCES = [0.5, 1, 0.5, 1, 0.25, 1, 0.5, 1, 0.5];
+    const LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+    const X = 1;
+    const O = 2;
+    const boardEl = document.getElementById("ttt");
+    const statusEl = document.getElementById("tStatus");
+    const memo = new Map();
+    let board = [];
+    let turn = X;
+    let missed = { 1: false, 2: false };
+    let mode = "human";
+    let busy = false;
+    let over = false;
+    let hints = true;
+    let timer = null;
+    const score = { x: 0, o: 0, t: 0 };
+    const cells = [];
+
+    for (let i = 0; i < 9; i++) {
+      const b = document.createElement("button");
+      b.className = "cell";
+      b.setAttribute("aria-label", "Square " + (i + 1));
+      b.addEventListener("click", function () {
+        humanMove(i);
+      });
+      boardEl.appendChild(b);
+      cells.push(b);
+    }
+
+    function winner(b) {
+      for (const [a, c, d] of LINES) {
+        if (b[a] !== 0 && b[a] === b[c] && b[a] === b[d]) {
+          return { who: b[a], line: [a, c, d] };
+        }
+      }
+      return null;
+    }
+
+    function full(b) {
+      for (const v of b) {
+        if (v === 0) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function other(p) {
+      if (p === X) {
+        return O;
+      }
+      return X;
+    }
+
+    function hitChance(i, who, m) {
+      if (m[who] || CHANCES[i] >= 1) {
+        return 1;
+      }
+      return CHANCES[i];
+    }
+
+    // Expected value from X's point of view: X wins = 1, O wins = -1, tie = 0
+    function value(b, who, mX, mO) {
+      const key = b.join("") + who + Number(mX) + Number(mO);
+      if (memo.has(key)) {
+        return memo.get(key);
+      }
+      const w = winner(b);
+      let result = 0;
+      if (w) {
+        if (w.who === X) {
+          result = 1;
+        } else {
+          result = -1;
+        }
+      } else if (!full(b)) {
+        let best = null;
+        for (let i = 0; i < 9; i++) {
+          if (b[i] !== 0) {
+            continue;
+          }
+          const ev = moveValue(b, who, mX, mO, i);
+          if (best === null || (who === X && ev > best) || (who === O && ev < best)) {
+            best = ev;
+          }
+        }
+        result = best;
+      }
+      memo.set(key, result);
+      return result;
+    }
+
+    function moveValue(b, who, mX, mO, i) {
+      const m = { 1: mX, 2: mO };
+      const p = hitChance(i, who, m);
+      const hit = b.slice();
+      hit[i] = who;
+      let ev = 0;
+      if (who === X) {
+        ev = p * value(hit, O, false, mO);
+        if (p < 1) {
+          ev += (1 - p) * value(b, O, true, mO);
+        }
+      } else {
+        ev = p * value(hit, X, mX, false);
+        if (p < 1) {
+          ev += (1 - p) * value(b, X, mX, true);
+        }
+      }
+      return ev;
+    }
+
+    function moveScores() {
+      const scores = [];
+      for (let i = 0; i < 9; i++) {
+        if (board[i] !== 0) {
+          scores.push(null);
+          continue;
+        }
+        let ev = moveValue(board, turn, missed[X], missed[O], i);
+        if (turn === O) {
+          ev = -ev;
+        }
+        scores.push(ev);
+      }
+      return scores;
+    }
+
+    function aiPick() {
+      const scores = moveScores();
+      let best = -Infinity;
+      for (const s of scores) {
+        if (s !== null && s > best) {
+          best = s;
+        }
+      }
+      const options = [];
+      for (let i = 0; i < 9; i++) {
+        if (scores[i] !== null && scores[i] > best - 1e-9) {
+          options.push(i);
+        }
+      }
+      return options[Math.floor(Math.random() * options.length)];
+    }
+
+    function isAiTurn() {
+      if (mode === "auto") {
+        return true;
+      }
+      if (mode === "human") {
+        return turn === O;
+      }
+      return turn === X;
+    }
+
+    function mark(p) {
+      if (p === X) {
+        return "X";
+      }
+      return "O";
+    }
+
+    function render(lastMiss) {
+      const w = winner(board);
+      let scores = null;
+      if (!over && hints) {
+        scores = moveScores();
+      }
+      for (let i = 0; i < 9; i++) {
+        const c = cells[i];
+        c.innerHTML = "";
+        c.classList.remove("win");
+        if (w && w.line.indexOf(i) !== -1) {
+          c.classList.add("win");
+        }
+        if (board[i] !== 0) {
+          const s = document.createElement("span");
+          s.className = "piece " + mark(board[i]).toLowerCase();
+          s.textContent = mark(board[i]);
+          c.appendChild(s);
+        } else if (!over) {
+          const ch = document.createElement("span");
+          ch.className = "chance";
+          ch.textContent = Math.round(hitChance(i, turn, missed) * 100) + "%";
+          c.appendChild(ch);
+          if (scores) {
+            const ev = document.createElement("span");
+            ev.className = "ev";
+            let sign = "";
+            if (scores[i] > 0.0005) {
+              sign = "+";
+            }
+            ev.textContent = sign + scores[i].toFixed(2);
+            if (scores[i] > 0.0005) {
+              ev.style.color = "var(--good)";
+            } else if (scores[i] < -0.0005) {
+              ev.style.color = "var(--bad)";
+            } else {
+              ev.style.color = "var(--muted)";
+            }
+            c.appendChild(ev);
+          }
+        }
+        c.disabled = over || busy || board[i] !== 0 || isAiTurn();
+      }
+      if (lastMiss !== undefined && lastMiss !== null) {
+        const c = cells[lastMiss];
+        c.classList.remove("flash");
+        void c.offsetWidth;
+        c.classList.add("flash");
+      }
+    }
+
+    function finish() {
+      const w = winner(board);
+      if (w) {
+        over = true;
+        if (w.who === X) {
+          score.x++;
+        } else {
+          score.o++;
+        }
+        statusEl.textContent = mark(w.who) + " wins!";
+      } else if (full(board)) {
+        over = true;
+        score.t++;
+        statusEl.textContent = "Tie.";
+      }
+      document.getElementById("sX").textContent = score.x;
+      document.getElementById("sO").textContent = score.o;
+      document.getElementById("sT").textContent = score.t;
+      return over;
+    }
+
+    function attempt(i) {
+      const p = hitChance(i, turn, missed);
+      const who = turn;
+      const hit = Math.random() < p;
+      let missAt = null;
+      if (hit) {
+        board[i] = who;
+        missed[who] = false;
+      } else {
+        missed[who] = true;
+        missAt = i;
+      }
+      turn = other(who);
+      if (!finish()) {
+        let msg = "";
+        if (hit) {
+          msg = mark(who) + " hit square " + (i + 1) + ".";
+        } else {
+          msg = mark(who) + " missed square " + (i + 1) + " (" + Math.round(p * 100) + "% chance). Turn lost.";
+        }
+        statusEl.textContent = msg + " " + mark(turn) + " to move.";
+      }
+      render(missAt);
+      scheduleAi();
+    }
+
+    function scheduleAi() {
+      if (over || !isAiTurn()) {
+        return;
+      }
+      busy = true;
+      render();
+      let delay = 650;
+      if (mode === "auto") {
+        delay = 800;
+      }
+      timer = setTimeout(function () {
+        busy = false;
+        attempt(aiPick());
+      }, delay);
+    }
+
+    function humanMove(i) {
+      if (over || busy || isAiTurn() || board[i] !== 0) {
+        return;
+      }
+      attempt(i);
+    }
+
+    function newGame() {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+      board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+      turn = X;
+      missed = { 1: false, 2: false };
+      over = false;
+      busy = false;
+      if (mode === "human") {
+        statusEl.textContent = "You are X. Pick a square.";
+      } else if (mode === "ai") {
+        statusEl.textContent = "The AI is X and moves first. You are O.";
+      } else {
+        statusEl.textContent = "Two expectimax agents play each other.";
+      }
+      render();
+      scheduleAi();
+    }
+
+    document.getElementById("tNew").addEventListener("click", newGame);
+    document.getElementById("tHints").addEventListener("change", function (e) {
+      hints = e.target.checked;
+      render();
+    });
+    bindSeg("modeSeg", "mode", function (m) {
+      mode = m;
+      newGame();
+    });
+
+    newGame();
+    return {};
+  })();
+
+  // ===== Markov StoryTime ==================================================
+  const Markov = (function () {
+    const DEFAULT_TEXT = "the mouse looks at the grid and the mouse wants the cheese . the agent does not know the rules of the world so the agent tries a move and the world answers with a reward . a good reward makes the move look better next time . a bad reward makes the mouse careful near the fire . the search agent is different . the search agent reads the whole world first and then it walks the shortest path to the goal . the dice decide if the move works . every agent plugs into every world through the same loop .";
+    const textEl = document.getElementById("mkText");
+    const seedEl = document.getElementById("mkSeed");
+    const lenEl = document.getElementById("mkLen");
+    const storyEl = document.getElementById("story");
+    const chipsEl = document.getElementById("mkChips");
+    const wordEl = document.getElementById("mkWord");
+
+    textEl.value = DEFAULT_TEXT;
+
+    // Same rule as StoryTime.Build: successors are the next 4 words, skipping repeats of itself
+    function build(text) {
+      const words = new Map();
+      const parts = text.split(/\s+/).filter(function (w) { return w.length > 0; });
+      for (let i = 0; i < parts.length; i++) {
+        if (!words.has(parts[i])) {
+          words.set(parts[i], []);
+        }
+        for (let j = 0; j < 5 && i + j < parts.length; j++) {
+          if (parts[i] !== parts[i + j]) {
+            words.get(parts[i]).push(parts[i + j]);
+          }
+        }
+      }
+      return words;
+    }
+
+    function generate() {
+      const words = build(textEl.value);
+      const seedParts = seedEl.value.trim().split(/\s+/).filter(function (w) { return w.length > 0; });
+      storyEl.innerHTML = "";
+      if (seedParts.length === 0) {
+        storyEl.textContent = "Type a start word.";
+        return;
+      }
+      const result = seedParts.slice();
+      const len = parseInt(lenEl.value, 10);
+      let stopped = false;
+      for (let i = 0; i < len; i++) {
+        const options = words.get(result[result.length - 1]);
+        if (!options || options.length === 0) {
+          stopped = true;
+          break;
+        }
+        result.push(options[Math.floor(Math.random() * options.length)]);
+      }
+      const seedSpan = document.createElement("span");
+      seedSpan.className = "seed";
+      seedSpan.textContent = seedParts.join(" ");
+      storyEl.appendChild(seedSpan);
+      storyEl.appendChild(document.createTextNode(" " + result.slice(seedParts.length).join(" ")));
+      if (stopped) {
+        const note = document.createElement("div");
+        note.className = "note";
+        note.style.marginTop = "10px";
+        note.textContent = "Stopped: the last word has no successors in the text.";
+        storyEl.appendChild(note);
+      }
+
+      const last = seedParts[seedParts.length - 1];
+      wordEl.textContent = last;
+      chipsEl.innerHTML = "";
+      const succ = words.get(last) || [];
+      const counts = new Map();
+      for (const s of succ) {
+        counts.set(s, (counts.get(s) || 0) + 1);
+      }
+      const sorted = Array.from(counts.entries()).sort(function (a, b) { return b[1] - a[1]; });
+      if (sorted.length === 0) {
+        const none = document.createElement("span");
+        none.className = "note";
+        none.textContent = "none (the word is not in the text)";
+        chipsEl.appendChild(none);
+      }
+      for (const [w, n] of sorted.slice(0, 24)) {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.textContent = w + " ×" + n;
+        chipsEl.appendChild(chip);
+      }
+    }
+
+    document.getElementById("mkGo").addEventListener("click", generate);
+    seedEl.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        generate();
+      }
+    });
+    lenEl.addEventListener("input", function () {
+      document.getElementById("mkLenO").textContent = lenEl.value;
+    });
+    generate();
+    return {};
+  })();
+})();
+</script>
+</body>
+</html>

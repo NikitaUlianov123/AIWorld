@@ -1,3 +1,5 @@
+**[Try the live demos](https://nikitaulianov123.github.io/AIWorld/)** (A* on the 8 Puzzle, Q-learning on the Cheese puzzle, expectimax on Chancy Tic-Tac-Toe, and the Markov text generator, all in the browser).
+
 This is an AI playground, intended for experimenting with different types of AI in different challenges.  
 It includes a fully modular system of Agents and Environments, making it very easy to experiment with.  
 
